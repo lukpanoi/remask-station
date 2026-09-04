@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="ReMask Station แนวคิดระบบจัดการวงจรชีวิตของหน้ากากใช้ซ้ำอัจฉริยะ ตั้งแต่รับคืน ตรวจสภาพ ทำความสะอาด ติดตาม และตัดสินใจ"
+    />
+    <meta name="theme-color" content="#0d3567" />
+    <title>ReMask Station — ระบบจัดการวงจรชีวิตหน้ากากใช้ซ้ำ</title>
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">ข้ามไปยังเนื้อหา</a>
+
+    <svg class="icon-sprite" aria-hidden="true">
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+      <symbol id="i-return" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v5"/></symbol>
+      <symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 8h2v2H8zM14 8h2v2h-2zM8 14h2v2H8zM14 14h2v2h-2z"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+      <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 5h16l-6 7v6l-4 2v-8z"/></symbol>
+      <symbol id="i-clean" viewBox="0 0 24 24"><path d="M12 3s5 5.3 5 10a5 5 0 0 1-10 0c0-4.7 5-10 5-10Z"/><path d="M5 4v4M3 6h4M19 3v3M17.5 4.5h3"/></symbol>
+      <symbol id="i-verify" viewBox="0 0 24 24"><path d="M7 3h10v4H7zM5 5H3v16h18V5h-2"/><path d="m8 14 3 3 5-6"/></symbol>
+      <symbol id="i-decision" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="3"/><circle cx="12" cy="7" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="17" r="2"/></symbol>
+      <symbol id="i-cycle" viewBox="0 0 24 24"><path d="M20 7h-6V1"/><path d="M20 7a9 9 0 1 0 1 8"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-5"/></symbol>
+      <symbol id="i-warning" viewBox="0 0 24 24"><path d="M10.3 3.6 2.2 18a2 2 0 0 0 1.8 3h16a2 2 0 0 0 1.8-3L13.7 3.6a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></symbol>
+      <symbol id="i-mask" viewBox="0 0 24 24"><path d="M4 8c3-2 5-3 8-3s5 1 8 3v8c-3 2-5 3-8 3s-5-1-8-3Z"/><path d="M4 9C1 9 1 15 4 15M20 9c3 0 3 6 0 6M8 10h8M8 14h8"/></symbol>
+      <symbol id="i-tag" viewBox="0 0 24 24"><path d="m20 13-7 7L3 10V3h7z"/><circle cx="7.5" cy="7.5" r="1"/></symbol>
+      <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+      <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 2 10 5-10 5L2 7zM2 12l10 5 10-5M2 17l10 5 10-5"/></symbol>
+      <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6M10 14 21 3M18 13v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h7"/></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    </svg>
+
+    <header class="site-header" id="top">
+      <div class="scroll-progress" aria-hidden="true"><span></span></div>
+      <nav class="nav shell" aria-label="เมนูหลัก">
+        <a class="brand" href="#home" aria-label="ReMask Station หน้าหลัก">
+          <span class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+          <span>ReMask <strong>Station</strong></span>
+        </a>
+
+        <button class="nav-toggle" type="button" aria-label="เปิดเมนู" aria-expanded="false" aria-controls="nav-links" aria-haspopup="true">
+          <svg class="menu-icon" aria-hidden="true"><use href="#i-menu"></use></svg>
+          <svg class="close-icon" aria-hidden="true"><use href="#i-close"></use></svg>
+          <span class="nav-toggle-label">เมนู</span>
+        </button>
+
+        <div class="nav-links" id="nav-links">
+          <a href="#home">Home</a>
+          <a href="#problem">Problem</a>
+          <a href="#innovation">Innovation</a>
+          <a href="#workflow">How It Works</a>
+          <a href="#score">Score</a>
+          <a href="#prototype">Prototype</a>
+          <a href="#research">Research</a>
+          <a href="#limitations">Limitations</a>
+        </div>
+
+        <a class="button button-small nav-cta" href="#workflow">ดูการทำงานของระบบ</a>
+      </nav>
+      <div class="nav-backdrop" aria-hidden="true"></div>
+    </header>
+
+    <main id="main">
+      <section class="hero section" id="home">
+        <div class="hero-glow hero-glow-one"></div>
+        <div class="hero-glow hero-glow-two"></div>
+        <div class="shell hero-grid">
+          <div class="hero-copy reveal">
+            <div class="eyebrow"><span class="pulse-dot"></span> Prototype Innovation Concept</div>
+            <h1>ReMask <span>Station</span></h1>
+            <p class="hero-title">ระบบจัดการวงจรชีวิตของหน้ากากใช้ซ้ำอัจฉริยะ</p>
+            <p class="hero-description">
+              รวมหน้ากากชนิดใช้ซ้ำ ตัวกรองแบบเปลี่ยนได้ ระบบตรวจสภาพ การติดตามข้อมูล
+              และสถานีจัดการหน้ากากเข้าด้วยกัน เพื่อลดการทิ้งหน้ากากทั้งชิ้นโดยไม่จำเป็น
+            </p>
+            <div class="lifecycle-pill" aria-label="วงจรการทำงาน">
+              <span>USE</span><b>→</b><span>RETURN</span><b>→</b><span>CHECK</span><b>→</b><span>REUSE</span>
+            </div>
+            <div class="hero-actions">
+              <a class="button" href="#workflow">ดูระบบทำงาน <svg><use href="#i-arrow"></use></svg></a>
+              <a class="button button-ghost" href="#research">ดูงานวิจัยรองรับ</a>
+            </div>
+            <p class="hero-note"><svg><use href="#i-info"></use></svg> แนวคิดเพื่อการศึกษาและพัฒนา ยังไม่ใช่อุปกรณ์ทางการแพทย์ที่ผ่านการรับรอง</p>
+          </div>
+
+          <div class="hero-visual reveal" aria-label="ภาพจำลองสถานี ReMask และส่วนประกอบหน้ากาก">
+            <div class="product-render">
+              <span class="render-label">ENGINEERING CONCEPT · NOT TO SCALE</span>
+              <img src="./assets/remask-system.png" alt="ภาพจำลองสถานี ReMask คู่กับหน้ากากใช้ซ้ำ ไส้กรองถอดเปลี่ยน และแท็ก RFID" width="1536" height="1024" />
+              <div class="render-caption"><span>01</span><div><b>ReMask Station</b><small>Receive · Check · Manage</small></div></div>
+              <div class="render-caption mask-caption"><span>02</span><div><b>Reusable Facepiece</b><small>Filter + Digital identity</small></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section problem" id="problem">
+        <div class="shell">
+          <div class="section-heading reveal">
+            <div class="section-number">01</div>
+            <div><span class="kicker">THE PROBLEM</span><h2>ปัญหาที่เราต้องการแก้</h2></div>
+          </div>
+          <div class="card-grid three">
+            <article class="feature-card reveal">
+              <div class="icon-box teal"><svg><use href="#i-cycle"></use></svg></div>
+              <span class="card-index">01</span>
+              <h3>ขยะจากหน้ากากใช้ครั้งเดียว</h3>
+              <p>เมื่อมีการใช้งานหน้ากากจำนวนมาก ปริมาณขยะจากอุปกรณ์แบบใช้ครั้งเดียวสามารถเพิ่มขึ้นอย่างรวดเร็ว</p>
+            </article>
+            <article class="feature-card reveal">
+              <div class="icon-box navy"><svg><use href="#i-layers"></use></svg></div>
+              <span class="card-index">02</span>
+              <h3>ความเสี่ยงด้านการขาดแคลน</h3>
+              <p>ในสถานการณ์ที่มีความต้องการสูง เช่น การระบาด อุปกรณ์ป้องกันแบบใช้ครั้งเดียวอาจเกิดภาวะขาดแคลนได้</p>
+            </article>
+            <article class="feature-card reveal">
+              <div class="icon-box red"><svg><use href="#i-warning"></use></svg></div>
+              <span class="card-index">03</span>
+              <h3>การใช้ซ้ำโดยไม่มีระบบตรวจสอบ</h3>
+              <p>การใช้ซ้ำอาจกระทบวัสดุ การกรอง และการแนบสนิท หากหน้ากากไม่ได้ถูกออกแบบและทดสอบรองรับตั้งแต่ต้น</p>
+            </article>
+          </div>
+          <div class="statement reveal">
+            <span class="statement-mark">“</span>
+            <p><strong>ReMask ไม่ได้นำหน้ากากใช้ครั้งเดียวทั่วไปกลับมาใช้ใหม่</strong> แต่เริ่มจากการออกแบบระบบสำหรับหน้ากากที่ตั้งใจให้ใช้ซ้ำตั้งแต่ต้น</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section innovation" id="innovation">
+        <div class="shell">
+          <div class="section-heading reveal">
+            <div class="section-number">02</div>
+            <div><span class="kicker">SYSTEM DESIGN</span><h2>แนวคิดของ ReMask</h2></div>
+          </div>
+          <div class="system-layout">
+            <div class="system-diagram reveal">
+              <div class="system-rail"></div>
+              <article class="system-node node-1"><div class="node-icon"><svg><use href="#i-mask"></use></svg></div><div><small>COMPONENT 01</small><h3>Reusable Facepiece</h3><p>โครงยืดหยุ่น ถอดประกอบ และตรวจสภาพได้</p></div></article>
+              <article class="system-node node-2"><div class="node-icon"><svg><use href="#i-filter"></use></svg></div><div><small>COMPONENT 02</small><h3>Replaceable Filter</h3><p>เปลี่ยนชิ้นส่วนกรองแยกจากตัวหน้ากาก</p></div></article>
+              <div class="system-core"><span>ReMask</span><strong>System</strong><i></i></div>
+              <article class="system-node node-3"><div class="node-icon"><svg><use href="#i-tag"></use></svg></div><div><small>COMPONENT 03</small><h3>QR / RFID Tracking</h3><p>ระบุตัวตนและเรียกประวัติของแต่ละชิ้น</p></div></article>
+              <article class="system-node node-4"><div class="node-icon"><svg><use href="#i-chart"></use></svg></div><div><small>COMPONENT 04</small><h3>ReMask Station</h3><p>รับคืน ตรวจ จัดการ และตัดสินสถานะ</p></div></article>
+            </div>
+            <div class="system-copy reveal">
+              <span class="mini-label">BEYOND CLEANING</span>
+              <h3>มากกว่าเครื่องทำความสะอาด</h3>
+              <p>ReMask Station คือระบบจัดการวงจรชีวิต ตั้งแต่รับคืน ตรวจสภาพ แยกชิ้นส่วน ทำความสะอาด ติดตามประวัติ ตรวจซ้ำ และตัดสินใจว่าจะใช้ต่อ เปลี่ยนชิ้นส่วน หรือนำออกจากระบบ</p>
+              <ul class="check-list">
+                <li><svg><use href="#i-check"></use></svg> ตรวจทั้งก่อนและหลังทำความสะอาด</li>
+                <li><svg><use href="#i-check"></use></svg> แยกอายุโครงหน้ากากกับตัวกรอง</li>
+                <li><svg><use href="#i-check"></use></svg> มี Digital Identity รายชิ้น</li>
+                <li><svg><use href="#i-check"></use></svg> ไม่ปล่อยชิ้นที่มีปัญหากลับอัตโนมัติ</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="difference-strip reveal" aria-label="จุดเด่นของระบบ">
+            <div><svg><use href="#i-search"></use></svg><span><b>Pre + Post Check</b><small>ตรวจสองช่วง</small></span></div>
+            <div><svg><use href="#i-filter"></use></svg><span><b>Modular Filter</b><small>เปลี่ยนเฉพาะส่วน</small></span></div>
+            <div><svg><use href="#i-tag"></use></svg><span><b>Traceability</b><small>ติดตามรายชิ้น</small></span></div>
+            <div><svg><use href="#i-decision"></use></svg><span><b>Safety Decision</b><small>3 สถานะชัดเจน</small></span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section workflow-section" id="workflow">
+        <div class="shell">
+          <div class="section-heading light reveal">
+            <div class="section-number">03</div>
+            <div><span class="kicker">INTERACTIVE PROCESS</span><h2>ReMask Station ทำงานอย่างไร</h2><p>เลือกขั้นตอนเพื่อดูรายละเอียดของกระบวนการ</p></div>
+          </div>
+
+          <div class="workflow reveal" role="tablist" aria-label="ขั้นตอนการทำงาน 7 ขั้นตอน">
+            <button class="workflow-step active" type="button" role="tab" aria-selected="true" data-step="0">
+              <span class="step-number">01</span><span class="step-icon"><svg><use href="#i-return"></use></svg></span><strong>RETURN</strong><small>รับหน้ากากคืน</small>
+            </button>
+            <button class="workflow-step" type="button" role="tab" aria-selected="false" data-step="1">
+              <span class="step-number">02</span><span class="step-icon"><svg><use href="#i-scan"></use></svg></span><strong>IDENTIFY</strong><small>ระบุตัวตน</small>
+            </button>
+            <button class="workflow-step" type="button" role="tab" aria-selected="false" data-step="2">
+              <span class="step-number">03</span><span class="step-icon"><svg><use href="#i-search"></use></svg></span><strong>PRE-CHECK</strong><small>ตรวจก่อน</small>
+            </button>
+            <button class="workflow-step" type="button" role="tab" aria-selected="false" data-step="3">
+              <span class="step-number">04</span><span class="step-icon"><svg><use href="#i-filter"></use></svg></span><strong>SEPARATE</strong><small>แยกตัวกรอง</small>
+            </button>
+            <button class="workflow-step" type="button" role="tab" aria-selected="false" data-step="4">
+              <span class="step-number">05</span><span class="step-icon"><svg><use href="#i-clean"></use></svg></span><strong>CLEAN</strong><small>ทำความสะอาด</small>
+            </button>
+            <button class="workflow-step" type="button" role="tab" aria-selected="false" data-step="5">
+              <span class="step-number">06</span><span class="step-icon"><svg><use href="#i-verify"></use></svg></span><strong>VERIFY</strong><small>ตรวจซ้ำ + คะแนน</small>
+            </button>
+            <button class="workflow-step" type="button" role="tab" aria-selected="false" data-step="6">
+              <span class="step-number">07</span><span class="step-icon"><svg><use href="#i-decision"></use></svg></span><strong>DECISION</strong><small>ตัดสินสถานะ</small>
+            </button>
+          </div>
+
+          <div class="workflow-detail reveal" aria-live="polite">
+            <div class="detail-count"><span id="detail-step">01</span><small>/ 07</small></div>
+            <div class="detail-content">
+              <span class="detail-eyebrow" id="detail-eyebrow">RETURN</span>
+              <h3 id="detail-title">รับหน้ากากกลับเข้าสู่ระบบ</h3>
+              <p id="detail-description">ผู้ใช้นำ ReMask ที่ใช้แล้วกลับเข้าสู่สถานีผ่านช่องรับคืนที่แยกจากช่องจ่ายหน้ากากสะอาด</p>
+              <ul id="detail-list"><li>แยกเส้นทางของชิ้นใช้แล้วกับชิ้นพร้อมใช้</li><li>เริ่มบันทึกรอบการจัดการใหม่</li></ul>
+            </div>
+            <div class="detail-visual" id="detail-visual"><svg><use href="#i-return"></use></svg><span>RETURN ZONE</span></div>
+          </div>
+
+          <div class="decision-row reveal">
+            <article class="decision pass"><span></span><div><small>90–100</small><h3>PASS / READY</h3><p>ผ่านเงื่อนไขและเข้าสู่กระบวนการจ่ายกลับ</p></div></article>
+            <article class="decision check"><span></span><div><small>70–89</small><h3>CHECK</h3><p>ตรวจเพิ่ม เปลี่ยน Filter หรือประเมินใหม่</p></div></article>
+            <article class="decision reject"><span></span><div><small>&lt; 70</small><h3>REJECT</h3><p>นำหน้ากากออกจากวงจรการใช้งาน</p></div></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section safety" id="safety">
+        <div class="shell">
+          <div class="safety-banner reveal">
+            <div class="safety-lead">
+              <span class="safety-icon"><svg><use href="#i-shield"></use></svg></span>
+              <div><span class="kicker">CRITICAL RULE</span><h2>Safety Gate มาก่อนคะแนน</h2><p>ReMask Score ใช้จัดการสถานะต้นแบบ แต่ไม่สามารถชดเชยความผิดปกติสำคัญด้านความปลอดภัยได้</p></div>
+            </div>
+            <div class="gate-result"><span>พบ Critical Failure</span><strong>CHECK / REJECT</strong><small>ทันที โดยไม่รวมคะแนนส่วนอื่น</small></div>
+          </div>
+          <div class="safety-grid">
+            <article class="safety-card reveal"><span>01</span><svg><use href="#i-warning"></use></svg><h3>โครงสร้างเสียหาย</h3><p>พบรอยแตกร้าว ฉีกขาด หรือเสียรูปอย่างมีนัยสำคัญ</p></article>
+            <article class="safety-card reveal"><span>02</span><svg><use href="#i-cycle"></use></svg><h3>กระบวนการไม่ครบ</h3><p>Cleaning / Disinfection Cycle ไม่ผ่านเงื่อนไขที่กำหนด</p></article>
+            <article class="safety-card reveal"><span>03</span><svg><use href="#i-filter"></use></svg><h3>Filter ผิดเงื่อนไข</h3><p>ตัวกรองเสียหาย เปียก ใช้ผิดชนิด หรือเกินเงื่อนไข</p></article>
+            <article class="safety-card reveal"><span>04</span><svg><use href="#i-warning"></use></svg><h3>เกิน Service Life</h3><p>เกินอายุที่กำหนดจากผลการทดสอบของวัสดุและระบบจริง</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section score-section" id="score">
+        <div class="shell">
+          <div class="section-heading reveal">
+            <div class="section-number">04</div>
+            <div><span class="kicker">PROTOTYPE LOGIC</span><h2>ReMask Readiness Score</h2><p>ทดลองปรับข้อมูลเพื่อดูหลักการจัดสถานะของต้นแบบ</p></div>
+          </div>
+          <div class="score-app reveal">
+            <div class="score-controls">
+              <div class="score-intro"><span class="live-badge"><i></i> INTERACTIVE DEMO</span><p>เลื่อนค่าของแต่ละองค์ประกอบ ระบบจะถ่วงน้ำหนักรวมเป็น 100 คะแนน</p></div>
+
+              <label class="score-control" for="process-score">
+                <span><b>Process Verification</b><small>น้ำหนัก 25%</small></span>
+                <output id="process-output">92</output>
+                <input id="process-score" type="range" min="0" max="100" value="92" data-weight="0.25" />
+              </label>
+              <label class="score-control" for="physical-score">
+                <span><b>Physical Condition</b><small>น้ำหนัก 25%</small></span>
+                <output id="physical-output">88</output>
+                <input id="physical-score" type="range" min="0" max="100" value="88" data-weight="0.25" />
+              </label>
+              <label class="score-control" for="filter-score">
+                <span><b>Filter Status</b><small>น้ำหนัก 30%</small></span>
+                <output id="filter-output">76</output>
+                <input id="filter-score" type="range" min="0" max="100" value="76" data-weight="0.30" />
+              </label>
+              <label class="score-control" for="reuse-score">
+                <span><b>Reuse Count</b><small>น้ำหนัก 20%</small></span>
+                <output id="reuse-output">84</output>
+                <input id="reuse-score" type="range" min="0" max="100" value="84" data-weight="0.20" />
+              </label>
+
+              <label class="critical-toggle"><input id="critical-toggle" type="checkbox" /><span></span><div><b>จำลอง Critical Failure</b><small>เปิดเพื่อทดสอบการทำงานของ Safety Gate</small></div></label>
+            </div>
+
+            <div class="score-result" id="score-result">
+              <div class="gauge-wrap">
+                <svg class="score-gauge" viewBox="0 0 220 220" aria-label="คะแนนความพร้อม">
+                  <circle class="gauge-track" cx="110" cy="110" r="88"></circle>
+                  <circle class="gauge-value" id="gauge-value" cx="110" cy="110" r="88"></circle>
+                </svg>
+                <div class="gauge-number"><strong id="total-score">85</strong><span>/ 100</span></div>
+              </div>
+              <div class="score-status check" id="score-status"><i></i><span>สถานะของต้นแบบ</span><strong>CHECK</strong><small>ควรตรวจเพิ่มหรือเปลี่ยนชิ้นส่วนที่กำหนด</small></div>
+              <div class="thresholds">
+                <div class="threshold pass"><span>90–100</span><b>PASS</b></div>
+                <div class="threshold check active"><span>70–89</span><b>CHECK</b></div>
+                <div class="threshold reject"><span>&lt; 70</span><b>REJECT</b></div>
+              </div>
+            </div>
+          </div>
+          <div class="warning-note reveal"><svg><use href="#i-info"></use></svg><p><strong>ค่าทดลองเท่านั้น:</strong> น้ำหนักคะแนนและ Threshold ต้องปรับจากข้อมูล Validation จริงก่อนนำไปใช้ตัดสินในระบบจริง</p></div>
+        </div>
+      </section>
+
+      <section class="section dashboard-section" id="dashboard">
+        <div class="shell">
+          <div class="section-heading reveal">
+            <div class="section-number">05</div>
+            <div><span class="kicker">TRACEABILITY</span><h2>Smart Tracking Dashboard</h2><p>ตัวอย่างการติดตามข้อมูลของหน้ากากแต่ละชิ้น</p></div>
+          </div>
+          <div class="dashboard reveal">
+            <div class="dash-topbar">
+              <div class="dash-brand"><span class="brand-mark small"><span></span><span></span><span></span></span><div><b>ReMask Control</b><small>Prototype Dashboard</small></div></div>
+              <div class="dash-actions"><label><svg><use href="#i-search"></use></svg><input id="mask-search" type="search" placeholder="ค้นหา Mask ID" aria-label="ค้นหา Mask ID" /></label><span class="system-online"><i></i> SYSTEM ONLINE</span></div>
+            </div>
+            <div class="dash-stats">
+              <div><span>MASKS IN SYSTEM</span><strong>148</strong><small>ตัวอย่างข้อมูล</small></div>
+              <div><span>READY</span><strong class="green">112</strong><small>75.7%</small></div>
+              <div><span>CHECK</span><strong class="orange">24</strong><small>16.2%</small></div>
+              <div><span>REJECT</span><strong class="red">12</strong><small>8.1%</small></div>
+            </div>
+            <div class="dash-body">
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Mask ID</th><th>Usage</th><th>Filter</th><th>Score</th><th>Status</th><th>Updated</th></tr></thead>
+                  <tbody id="mask-table-body"></tbody>
+                </table>
+                <div class="empty-table" id="empty-table">ไม่พบ Mask ID ที่ค้นหา</div>
+              </div>
+              <aside class="mask-detail" id="mask-detail">
+                <div class="detail-head"><span>SELECTED MASK</span><strong id="selected-id">RMK-000101</strong></div>
+                <div class="mini-mask" aria-hidden="true"><span><i></i></span><b></b><b></b></div>
+                <dl>
+                  <div><dt>Usage Cycles</dt><dd id="selected-usage">5</dd></div>
+                  <div><dt>Cleaning Cycles</dt><dd id="selected-cleaning">4</dd></div>
+                  <div><dt>Filter Status</dt><dd id="selected-filter">Replace Soon</dd></div>
+                  <div><dt>Physical Condition</dt><dd id="selected-physical">PASS</dd></div>
+                </dl>
+                <div class="selected-score"><span>Readiness Score</span><strong id="selected-score">84</strong></div>
+                <div class="selected-status check" id="selected-status"><i></i><b>CHECK</b></div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section prototype-section" id="prototype">
+        <div class="shell">
+          <div class="section-heading reveal">
+            <div class="section-number">06</div>
+            <div><span class="kicker">DEVELOPMENT ROADMAP</span><h2>เราจะสร้างต้นแบบอย่างไร</h2><p>แบ่งการพัฒนาเป็น 4 ระยะ เพื่อให้ทดสอบแต่ละส่วนได้ชัดเจน</p></div>
+          </div>
+          <div class="prototype-tabs reveal" role="tablist" aria-label="แผนการสร้างต้นแบบ">
+            <button class="prototype-tab active" type="button" data-phase="0"><span>PHASE 01</span><strong>Facepiece</strong></button>
+            <button class="prototype-tab" type="button" data-phase="1"><span>PHASE 02</span><strong>Station</strong></button>
+            <button class="prototype-tab" type="button" data-phase="2"><span>PHASE 03</span><strong>Software</strong></button>
+            <button class="prototype-tab" type="button" data-phase="3"><span>PHASE 04</span><strong>Validation</strong></button>
+          </div>
+          <div class="prototype-panel reveal">
+            <div class="phase-number"><span>01</span><small>PHASE</small></div>
+            <div class="phase-copy"><span class="mini-label">HARDWARE DESIGN</span><h3 id="phase-title">ReMask Facepiece</h3><p id="phase-description">พัฒนาโครงหน้ากากแบบถอดประกอบได้ รองรับตัวกรองแบบเปลี่ยน และออกแบบตำแหน่งสำคัญให้ตรวจสภาพได้ง่าย</p><ul id="phase-list"><li>โครงหน้ากากถอดประกอบได้</li><li>Filter Cartridge ถอดเปลี่ยนได้</li><li>QR / RFID รายชิ้น</li><li>ออกแบบให้ตรวจรอยเสียหายง่าย</li></ul></div>
+            <div class="phase-visual" id="phase-visual"><div class="blueprint-mask"><span><i></i></span><b></b><b></b><em></em></div><small>CONCEPT / NOT TO SCALE</small></div>
+          </div>
+
+          <div class="validation reveal">
+            <div class="validation-copy"><span class="kicker">VALIDATION CHECKLIST</span><h3>สิ่งที่ยังต้องพิสูจน์ก่อนใช้งานจริง</h3><p>คลิกเพื่อทำเครื่องหมายหัวข้อที่วางแผนทดสอบแล้ว รายการนี้เป็นเครื่องมือวางแผน ไม่ใช่ผลทดสอบ</p><div class="validation-progress"><span><i id="validation-progress"></i></span><b id="validation-count">0 / 8</b></div></div>
+            <div class="validation-list" id="validation-list">
+              <label><input type="checkbox" /><span><svg><use href="#i-check"></use></svg></span>วัสดุทนต่อ Cleaning / Disinfection หลายรอบหรือไม่</label>
+              <label><input type="checkbox" /><span><svg><use href="#i-check"></use></svg></span>โครงสร้างเปลี่ยนรูปหลังใช้งานซ้ำหรือไม่</label>
+              <label><input type="checkbox" /><span><svg><use href="#i-check"></use></svg></span>สายรัดยังสร้างแรงกระชับเหมาะสมหรือไม่</label>
+              <label><input type="checkbox" /><span><svg><use href="#i-check"></use></svg></span>Filter ยังมีประสิทธิภาพตามมาตรฐานที่เกี่ยวข้องหรือไม่</label>
+              <label><input type="checkbox" /><span><svg><use href="#i-check"></use></svg></span>ความต้านทานการหายใจอยู่ในเกณฑ์หรือไม่</label>
+              <label><input type="checkbox" /><span><svg><use href="#i-check"></use></svg></span>หน้ากาก Fit กับใบหน้าผู้ใช้ได้หรือไม่</label>
+              <label><input type="checkbox" /><span><svg><use href="#i-check"></use></svg></span>วิธี Disinfection ลดเชื้อเป้าหมายได้ตามระดับที่กำหนดหรือไม่</label>
+              <label><input type="checkbox" /><span><svg><use href="#i-check"></use></svg></span>Maximum Reuse Count ควรเป็นเท่าใด</label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section research-section" id="research">
+        <div class="shell">
+          <div class="section-heading reveal">
+            <div class="section-number">07</div>
+            <div><span class="kicker">EVIDENCE BASE</span><h2>หลักการและงานวิจัยที่รองรับแนวคิด</h2><p>งานอ้างอิงช่วยกำหนดโจทย์และสิ่งที่ต้องทดสอบ ไม่ได้แปลว่าต้นแบบผ่านการรับรอง</p></div>
+          </div>
+          <div class="research-grid">
+            <article class="research-card reveal"><div class="research-meta"><span>GUIDANCE</span><small>NIOSH · 2025</small></div><h3>Elastomeric Respirators</h3><p>อธิบายหลักการของ respirator แบบใช้ซ้ำ โครงหน้ากากที่ทำความสะอาดได้ ตัวกรองแบบเปลี่ยน และความสำคัญของ fit testing</p><a href="https://www.cdc.gov/niosh/ppe/respirators/elastomeric.html" target="_blank" rel="noopener">อ่านแหล่งข้อมูล <svg><use href="#i-external"></use></svg></a></article>
+            <article class="research-card reveal"><div class="research-meta"><span>GUIDANCE</span><small>NIOSH · 2019</small></div><h3>Cleaning Considerations</h3><p>ระบุให้ถอด filter, canister และ cartridge ก่อนทำความสะอาด facepiece เพราะชิ้นส่วนกรองไม่ควรถูกนำไปล้าง</p><a href="https://www.cdc.gov/niosh/bulletin/2019/cleaning-elastomerics.html" target="_blank" rel="noopener">อ่านแหล่งข้อมูล <svg><use href="#i-external"></use></svg></a></article>
+            <article class="research-card reveal"><div class="research-meta"><span>RESEARCH</span><small>Viscusi et al. · 2009</small></div><h3>Five Decontamination Methods</h3><p>ประเมินวิธีลดการปนเปื้อนหลายแบบกับ filtering facepiece respirators และชี้ว่าต้องพิจารณาผลต่อวัสดุและสมรรถนะ</p><a href="https://stacks.cdc.gov/view/cdc/187595" target="_blank" rel="noopener">อ่านแหล่งข้อมูล <svg><use href="#i-external"></use></svg></a></article>
+            <article class="research-card reveal"><div class="research-meta"><span>RESEARCH</span><small>Fischer et al. · 2020</small></div><h3>N95 Decontamination &amp; Reuse</h3><p>ผลการศึกษาย้ำว่าการพิจารณาใช้ซ้ำต้องคงความสมบูรณ์ของการแนบสนิทและซีลของ respirator</p><a href="https://wwwnc.cdc.gov/eid/article/26/9/20-1524_article" target="_blank" rel="noopener">อ่านแหล่งข้อมูล <svg><use href="#i-external"></use></svg></a></article>
+            <article class="research-card reveal"><div class="research-meta"><span>FIELD STUDY</span><small>Hines et al. · 2023</small></div><h3>EHMR Disinfection Practices</h3><p>ศึกษาการปฏิบัติด้าน cleaning และ disinfection ของผู้ใช้ elastomeric half-mask respirators ในหน่วยงานสุขภาพ</p><a href="https://stacks.cdc.gov/view/cdc/207160" target="_blank" rel="noopener">อ่านแหล่งข้อมูล <svg><use href="#i-external"></use></svg></a></article>
+            <article class="research-card reveal"><div class="research-meta"><span>ENVIRONMENT</span><small>WHO · 2024</small></div><h3>Health-care Waste</h3><p>เสนอให้ลดขยะตั้งแต่ต้นทาง และพิจารณาทางเลือกแบบใช้ซ้ำเมื่อปลอดภัยและสามารถดำเนินการได้จริง</p><a href="https://www.who.int/news-room/fact-sheets/detail/health-care-waste" target="_blank" rel="noopener">อ่านแหล่งข้อมูล <svg><use href="#i-external"></use></svg></a></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section limitations-section" id="limitations">
+        <div class="shell">
+          <div class="section-heading reveal">
+            <div class="section-number">08</div>
+            <div><span class="kicker">HONEST ENGINEERING</span><h2>ข้อจำกัดของแนวคิด</h2><p>สิ่งที่ยังไม่ทราบต้องถูกระบุให้ชัด ก่อนพัฒนาไปสู่การใช้งานจริง</p></div>
+          </div>
+          <div class="limitations-grid">
+            <article class="limitation-card reveal"><span>01</span><h3>ยังไม่มีจำนวนรอบที่แน่นอน</h3><p>Maximum Reuse Count ต้องได้จากการทดลองวัสดุและระบบจริง</p></article>
+            <article class="limitation-card reveal"><span>02</span><h3>Readiness Score ยังเป็น Prototype</h3><p>น้ำหนักคะแนนและ Threshold ต้องปรับตามข้อมูล Validation</p></article>
+            <article class="limitation-card reveal"><span>03</span><h3>กล้องรับรองการกรองไม่ได้</h3><p>ประสิทธิภาพ Filter ต้องตรวจด้วยวิธีมาตรฐานแยกต่างหาก</p></article>
+            <article class="limitation-card reveal"><span>04</span><h3>Fit มีผลต่อการป้องกัน</h3><p>ตัวกรองที่ดีไม่สามารถชดเชยหน้ากากที่แนบกับใบหน้าไม่เหมาะสม</p></article>
+            <article class="limitation-card reveal"><span>05</span><h3>ยังไม่ใช่อุปกรณ์ที่รับรองแล้ว</h3><p>ระบบปัจจุบันเป็นแนวคิดต้นแบบสำหรับการศึกษาและพัฒนา</p></article>
+          </div>
+
+          <div class="impact reveal">
+            <div class="impact-heading"><span class="kicker">EXPECTED IMPACT</span><h2>ผลที่คาดว่าจะได้รับ</h2><p>ประเมินเชิงคุณภาพในระยะแนวคิด โดยยังไม่ใช้ตัวเลขที่ไม่มีผลทดลองรองรับ</p></div>
+            <div class="impact-list">
+              <div><span>01</span><p>ลดการทิ้งหน้ากากทั้งชิ้นโดยไม่จำเป็น</p></div>
+              <div><span>02</span><p>เพิ่ม Traceability ของหน้ากากแต่ละชิ้น</p></div>
+              <div><span>03</span><p>ทำให้การใช้ซ้ำมีระบบตรวจสอบมากขึ้น</p></div>
+              <div><span>04</span><p>เปลี่ยนเฉพาะส่วนที่หมดอายุแทนการทิ้งทั้งชิ้น</p></div>
+              <div><span>05</span><p>ลดการพึ่งพาอุปกรณ์แบบใช้ครั้งเดียว</p></div>
+              <div><span>06</span><p>สร้างข้อมูลเพื่อหาจำนวนรอบที่เหมาะสม</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="final-section">
+        <div class="shell final-grid reveal">
+          <div><span class="kicker">THE CORE IDEA</span><h2>จาก “ใช้แล้วทิ้ง”<br />สู่ “ตรวจสอบแล้วหมุนเวียน”</h2></div>
+          <div class="final-flow"><span>USE</span><b>→</b><span>RETURN</span><b>→</b><span>CHECK</span><b>→</b><span>CLEAN</span><b>→</b><span>VERIFY</span><div><em>REUSE</em><em>REPLACE</em><em>REJECT</em></div></div>
+          <p>ReMask Station ไม่ได้พยายามทำให้หน้ากากใช้แล้วทุกชิ้นกลับมาใช้ใหม่ แต่สร้างระบบที่รู้ว่าอะไรใช้ต่อได้ อะไรต้องเปลี่ยน และเมื่อใดควรนำออกจากระบบ</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="shell footer-grid">
+        <div class="footer-brand"><a class="brand inverse" href="#top"><span class="brand-mark"><span></span><span></span><span></span></span><span>ReMask <strong>Station</strong></span></a><p>Environmental Innovation Concept</p></div>
+        <div class="footer-links"><a href="#research">Research</a><a href="#prototype">Prototype</a><a href="#workflow">Method</a><a href="#limitations">Limitations</a></div>
+        <p class="footer-note">เว็บไซต์นี้นำเสนอแนวคิดต้นแบบนวัตกรรมเพื่อการศึกษาและการแข่งขัน ยังไม่ใช่อุปกรณ์ทางการแพทย์ที่ผ่านการรับรอง</p>
+      </div>
+    </footer>
+
+    <button class="back-top" type="button" aria-label="กลับไปด้านบน"><svg><use href="#i-arrow"></use></svg></button>
+    <script src="./app.js" defer></script>
+  </body>
+</html>
