@@ -197,13 +197,29 @@ const detailTitle = document.getElementById("detail-title");
 const detailDescription = document.getElementById("detail-description");
 const detailList = document.getElementById("detail-list");
 const detailVisual = document.getElementById("detail-visual");
+const workflow = document.querySelector(".workflow");
+const workflowDetail = document.querySelector(".workflow-detail");
+const mobileWorkflowQuery = window.matchMedia("(max-width: 620px)");
+
+function placeWorkflowDetail(activeStep, animate = false) {
+  if (!workflow || !workflowDetail || !activeStep) return;
+  if (mobileWorkflowQuery.matches) activeStep.insertAdjacentElement("afterend", workflowDetail);
+  else workflow.append(workflowDetail);
+
+  workflowDetail.classList.toggle("mobile-inline", mobileWorkflowQuery.matches);
+  if (animate && mobileWorkflowQuery.matches) {
+    workflowDetail.classList.remove("is-revealing");
+    void workflowDetail.offsetWidth;
+    workflowDetail.classList.add("is-revealing");
+  }
+}
 
 function setWorkflowStep(index) {
   const data = workflowData[index];
   workflowSteps.forEach((step, stepIndex) => {
     const active = stepIndex === index;
     step.classList.toggle("active", active);
-    step.setAttribute("aria-selected", String(active));
+    step.setAttribute("aria-expanded", String(active));
   });
   detailStep.textContent = data.step;
   detailEyebrow.textContent = data.eyebrow;
@@ -211,6 +227,7 @@ function setWorkflowStep(index) {
   detailDescription.textContent = data.description;
   detailList.innerHTML = data.list.map((item) => `<li>${item}</li>`).join("");
   detailVisual.innerHTML = `<svg><use href="#${data.icon}"></use></svg><span>${data.visual}</span>`;
+  placeWorkflowDetail(workflowSteps[index], true);
 }
 
 workflowSteps.forEach((step, index) => {
@@ -224,6 +241,13 @@ workflowSteps.forEach((step, index) => {
     setWorkflowStep(nextIndex);
   });
 });
+
+function syncWorkflowLayout() {
+  placeWorkflowDetail(document.querySelector(".workflow-step.active") || workflowSteps[0]);
+}
+
+mobileWorkflowQuery.addEventListener("change", syncWorkflowLayout);
+syncWorkflowLayout();
 
 const rangeInputs = [...document.querySelectorAll('.score-control input[type="range"]')];
 const criticalToggle = document.getElementById("critical-toggle");

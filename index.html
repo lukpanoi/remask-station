@@ -181,31 +181,29 @@
             <div><span class="kicker">INTERACTIVE PROCESS</span><h2>ReMask Station ทำงานอย่างไร</h2><p>เลือกขั้นตอนเพื่อดูรายละเอียดของกระบวนการ</p></div>
           </div>
 
-          <div class="workflow reveal" role="tablist" aria-label="ขั้นตอนการทำงาน 7 ขั้นตอน">
-            <button class="workflow-step active" type="button" role="tab" aria-selected="true" data-step="0">
+          <div class="workflow reveal" aria-label="ขั้นตอนการทำงาน 7 ขั้นตอน">
+            <button class="workflow-step active" type="button" aria-expanded="true" aria-controls="workflow-detail" data-step="0">
               <span class="step-number">01</span><span class="step-icon"><svg><use href="#i-return"></use></svg></span><strong>RETURN</strong><small>รับหน้ากากคืน</small>
             </button>
-            <button class="workflow-step" type="button" role="tab" aria-selected="false" data-step="1">
+            <button class="workflow-step" type="button" aria-expanded="false" aria-controls="workflow-detail" data-step="1">
               <span class="step-number">02</span><span class="step-icon"><svg><use href="#i-scan"></use></svg></span><strong>IDENTIFY</strong><small>ระบุตัวตน</small>
             </button>
-            <button class="workflow-step" type="button" role="tab" aria-selected="false" data-step="2">
+            <button class="workflow-step" type="button" aria-expanded="false" aria-controls="workflow-detail" data-step="2">
               <span class="step-number">03</span><span class="step-icon"><svg><use href="#i-search"></use></svg></span><strong>PRE-CHECK</strong><small>ตรวจก่อน</small>
             </button>
-            <button class="workflow-step" type="button" role="tab" aria-selected="false" data-step="3">
+            <button class="workflow-step" type="button" aria-expanded="false" aria-controls="workflow-detail" data-step="3">
               <span class="step-number">04</span><span class="step-icon"><svg><use href="#i-filter"></use></svg></span><strong>SEPARATE</strong><small>แยกตัวกรอง</small>
             </button>
-            <button class="workflow-step" type="button" role="tab" aria-selected="false" data-step="4">
+            <button class="workflow-step" type="button" aria-expanded="false" aria-controls="workflow-detail" data-step="4">
               <span class="step-number">05</span><span class="step-icon"><svg><use href="#i-clean"></use></svg></span><strong>CLEAN</strong><small>ทำความสะอาด</small>
             </button>
-            <button class="workflow-step" type="button" role="tab" aria-selected="false" data-step="5">
+            <button class="workflow-step" type="button" aria-expanded="false" aria-controls="workflow-detail" data-step="5">
               <span class="step-number">06</span><span class="step-icon"><svg><use href="#i-verify"></use></svg></span><strong>VERIFY</strong><small>ตรวจซ้ำ + คะแนน</small>
             </button>
-            <button class="workflow-step" type="button" role="tab" aria-selected="false" data-step="6">
+            <button class="workflow-step" type="button" aria-expanded="false" aria-controls="workflow-detail" data-step="6">
               <span class="step-number">07</span><span class="step-icon"><svg><use href="#i-decision"></use></svg></span><strong>DECISION</strong><small>ตัดสินสถานะ</small>
             </button>
-          </div>
-
-          <div class="workflow-detail reveal" aria-live="polite">
+          <div class="workflow-detail reveal" id="workflow-detail" aria-live="polite">
             <div class="detail-count"><span id="detail-step">01</span><small>/ 07</small></div>
             <div class="detail-content">
               <span class="detail-eyebrow" id="detail-eyebrow">RETURN</span>
@@ -214,6 +212,7 @@
               <ul id="detail-list"><li>แยกเส้นทางของชิ้นใช้แล้วกับชิ้นพร้อมใช้</li><li>เริ่มบันทึกรอบการจัดการใหม่</li></ul>
             </div>
             <div class="detail-visual" id="detail-visual"><svg><use href="#i-return"></use></svg><span>RETURN ZONE</span></div>
+          </div>
           </div>
 
           <div class="decision-row reveal">
