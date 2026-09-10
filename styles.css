@@ -1,5 +1,19 @@
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap");
 
+.creators-section { padding: 56px 0; background: #f8fafb; }
+.creators-card { display: flex; align-items: center; gap: 36px; padding: 32px; border: 1px solid #e1e8ed; border-radius: 24px; background: #fff; }
+.school-emblem { width: 116px; height: 116px; object-fit: contain; flex-shrink: 0; }
+.creators-content { min-width: 0; }
+.creators-content h2 { margin: 6px 0 12px; color: #0b2c59; font-size: 1.5rem; }
+.creators-names { display: flex; flex-wrap: wrap; gap: 8px 36px; margin: 0; padding: 0; list-style: none; font-size: 1.125rem; font-weight: 600; }
+.creators-school { margin: 12px 0 0; color: #087879; font-size: 1rem; }
+@media (max-width: 620px) {
+  .creators-section { padding: 32px 0; }
+  .creators-card { flex-direction: column; gap: 20px; padding: 24px 18px; text-align: center; }
+  .school-emblem { width: 96px; height: 96px; }
+  .creators-names { flex-direction: column; gap: 6px; }
+}
+
 :root {
   --navy-950: #071f40;
   --navy-900: #0b2c59;
@@ -1505,6 +1519,7 @@ h3,
 .workflow-step small { font-family: "IBM Plex Sans Thai", sans-serif; font-size: 12px; }
 
 .workflow-detail {
+  position: relative;
   display: grid;
   min-height: 245px;
   align-items: center;
@@ -1516,6 +1531,12 @@ h3,
   grid-column: 1 / -1;
   grid-template-columns: 100px 1fr 240px;
   gap: 28px;
+}
+
+.workflow-detail[hidden] { display: none; }
+
+.workflow-detail-close {
+  display: none;
 }
 
 @keyframes workflow-detail-in {
@@ -2068,6 +2089,9 @@ tbody tr.selected { background: #f0f9f9; }
   .workflow-step strong { min-width: 82px; }
   .workflow-detail { margin: 0 0 4px; padding: 23px; grid-template-columns: 1fr; gap: 18px; }
   .workflow-detail.mobile-inline.is-revealing { animation: workflow-detail-in .26s ease both; }
+  .workflow-detail-close { position: absolute; top: 14px; right: 14px; display: inline-flex; min-height: 38px; align-items: center; gap: 5px; padding: 6px 10px; border: 1px solid rgba(126,216,209,.3); border-radius: 9px; color: #bfe0df; background: rgba(7,31,64,.62); font-size: 13px; font-weight: 700; cursor: pointer; }
+  .workflow-detail-close svg { width: 17px; height: 17px; }
+  .workflow-detail-close:focus-visible { outline: 2px solid #7ed8d1; outline-offset: 2px; }
   .detail-count { display: flex; align-items: baseline; gap: 4px; padding-bottom: 13px; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.12); }
   .detail-count span { font-size: 38px; }
   .detail-visual { grid-column: 1; height: 120px; }

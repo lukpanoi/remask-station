@@ -199,7 +199,9 @@ const detailList = document.getElementById("detail-list");
 const detailVisual = document.getElementById("detail-visual");
 const workflow = document.querySelector(".workflow");
 const workflowDetail = document.querySelector(".workflow-detail");
+const workflowDetailClose = document.querySelector(".workflow-detail-close");
 const mobileWorkflowQuery = window.matchMedia("(max-width: 620px)");
+let activeWorkflowIndex = 0;
 
 function placeWorkflowDetail(activeStep, animate = false) {
   if (!workflow || !workflowDetail || !activeStep) return;
@@ -216,6 +218,8 @@ function placeWorkflowDetail(activeStep, animate = false) {
 
 function setWorkflowStep(index) {
   const data = workflowData[index];
+  activeWorkflowIndex = index;
+  workflowDetail.hidden = false;
   workflowSteps.forEach((step, stepIndex) => {
     const active = stepIndex === index;
     step.classList.toggle("active", active);
@@ -231,7 +235,14 @@ function setWorkflowStep(index) {
 }
 
 workflowSteps.forEach((step, index) => {
-  step.addEventListener("click", () => setWorkflowStep(index));
+  step.addEventListener("click", () => {
+    const isOpenStep = mobileWorkflowQuery.matches && step.classList.contains("active") && !workflowDetail.hidden;
+    if (isOpenStep) {
+      collapseWorkflowDetail();
+      return;
+    }
+    setWorkflowStep(index);
+  });
   step.addEventListener("keydown", (event) => {
     if (!["ArrowRight", "ArrowLeft", "ArrowDown", "ArrowUp"].includes(event.key)) return;
     event.preventDefault();
@@ -242,8 +253,27 @@ workflowSteps.forEach((step, index) => {
   });
 });
 
+function collapseWorkflowDetail() {
+  if (!mobileWorkflowQuery.matches || !workflowDetail) return;
+  workflowDetail.hidden = true;
+  workflowSteps.forEach((step) => {
+    step.classList.remove("active");
+    step.setAttribute("aria-expanded", "false");
+  });
+}
+
+workflowDetailClose?.addEventListener("click", () => {
+  collapseWorkflowDetail();
+  workflowSteps[activeWorkflowIndex]?.focus({ preventScroll: true });
+});
+
 function syncWorkflowLayout() {
-  placeWorkflowDetail(document.querySelector(".workflow-step.active") || workflowSteps[0]);
+  if (!mobileWorkflowQuery.matches) {
+    workflowDetail.hidden = false;
+    setWorkflowStep(activeWorkflowIndex);
+    return;
+  }
+  placeWorkflowDetail(document.querySelector(".workflow-step.active") || workflowSteps[activeWorkflowIndex]);
 }
 
 mobileWorkflowQuery.addEventListener("change", syncWorkflowLayout);
