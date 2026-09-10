@@ -11,6 +11,9 @@ export const PARTS = {
   lift: { model:'station', n:'06', title:'รางเลื่อนและชุดขับเคลื่อน', text:'รางคู่ประคองถาดร่วมกับสกรูขับและมอเตอร์ เพื่อจัดตำแหน่งชิ้นงาน ลดการเอียง และเคลื่อนระหว่างตำแหน่งตรวจ ตัวอย่างนี้แสดงแนวทางกลไก ยังไม่ใช่ระบบขนถ่ายที่ทดสอบแล้ว' },
   controller: { model:'station', n:'07', title:'ชุดควบคุมและเซนเซอร์', text:'บอร์ดควบคุม ภาคจ่ายไฟ ขั้วต่อสาย และสวิตช์ตรวจฝา ใช้รับสัญญาณและสั่งกลไก แนวคิด interlock จะหยุดกระบวนการเมื่อฝาถูกเปิด ต้องยืนยันการทำงานกับต้นแบบจริง' },
   output: { model:'station', n:'08', title:'ส่วนตรวจซ้ำและแยกสถานะ', text:'เสนอช่องแยก PASS, CHECK และ REJECT หลังตรวจซ้ำและประกอบไส้กรองตามเกณฑ์ พร้อมแผงกั้นและช่องจ่าย การเคลื่อนย้ายข้ามโซนและการประกอบต้องออกแบบและทดสอบเพิ่มเติม' },
+  uv: { model:'station', n:'09', title:'UV chamber · ชุด UV จำลอง', text:'ตำแหน่งหลอด UV ภายในห้องปิด แสดงแนวคิด interlock: ปิดทางเข้า–ออกก่อนเริ่ม UV และหยุด UV ก่อนเปิดห้อง แสงสีม่วงเป็นสัญลักษณ์เท่านั้น การฆ่าเชื้อจริงขึ้นกับวัสดุ เงาบัง โดส และผลทดสอบ ไม่ใช่เพียงเปิดหลอดให้ครบเวลา' },
+  conveyor: { model:'station', n:'10', title:'สายพานและแท่นยกชิ้นงาน', text:'สายพานลูกกลิ้งรับหน้ากากเข้าถาดและแท่นยกนำโครงผ่านตำแหน่งตรวจกับห้องกระบวนการ แอนิเมชันแสดงทิศทางและลำดับกลไก ไม่ใช่แบบผลิตที่ยืนยันระยะหรือความแม่นยำแล้ว' },
+  workpiece: { model:'station', n:'11', title:'หน้ากากตัวอย่างในกระบวนการ', text:'หน้ากากสีขาวเคลื่อนตามลำดับสาธิต โดยถอดไส้กรอง สายรัด และแท็กก่อนเข้าห้องกระบวนการ กรณี PASS แสดงการใช้ตัวกรองทดแทน ส่วน REJECT แยกไว้โดยไม่จ่ายกลับ ผลทั้งสองเป็นสถานการณ์จำลอง' },
   shell: { model:'mask', n:'01', title:'โครงหน้ากากแบบใช้ซ้ำ', text:'โครงโค้งครอบจมูกและปาก มีช่องรับตลับกรองจริงในโมเดล แยกจากขอบซีลและไส้กรองเพื่อถอดตรวจ เลือกวัสดุและรูปทรงจากการทดสอบความเข้ากันได้กับกระบวนการทำความสะอาด' },
   seal: { model:'mask', n:'02', title:'ขอบซีลสัมผัสใบหน้า', text:'ขอบยืดหยุ่นต่อเนื่องรอบจมูก แก้ม และคาง แนวคิดให้ถอดตรวจรอยฉีกและการเสียรูปได้ ความแนบสนิทต้องทดสอบกับผู้สวมใส่จริง ไม่สามารถยืนยันจากรูปทรง 3D' },
   cartridge: { model:'mask', n:'03', title:'กรอบตลับและวงแหวนซีล', text:'กรอบรองรับแผ่นกรอง พร้อมจุดล็อกและวงซีลรอบรอยต่อ ถอดออกจากโครงได้โดยไม่ต้องทิ้งหน้ากากทั้งชิ้น ต้องทดสอบการรั่วและความแข็งแรงของจุดยึด' },
@@ -22,6 +25,7 @@ export const PARTS = {
 
 const mat = (color, metalness=0, roughness=.5, more={}) => new T.MeshStandardMaterial({color,metalness,roughness,...more});
 const M = {
+  mask:mat('#f4f4ef',0,.47), maskEdge:mat('#cdd4d4',0,.72), maskSeal:mat('#dce4e3',0,.65), maskStrap:mat('#aeb8ba',0,.92), maskAccent:mat('#8eabaa',.1,.55),
   navy:mat('#173444',.42,.33), teal:mat('#118d91',.45,.31), white:mat('#e9eff0',.18,.36),
   steel:mat('#b7c6cc',.75,.3), dark:mat('#101e26',.2,.38), rubber:mat('#36434c',0,.85),
   silicone:mat('#96c5c6',0,.63), black:mat('#18232b',.15,.5), filter:mat('#f0eee3',0,.91),
@@ -67,7 +71,7 @@ export function buildStation() {
   const root=new T.Group();root.name='station';root.userData.model='station';
   const parts={}, anchors={}, moving=[];
   for(const [id,d] of Object.entries(PARTS))if(d.model==='station')parts[id]=part(root,id);
-  const {enclosure:e,screen:s,intake:i,chamber:c,airflow:a,lift:l,controller:k,output:o}=parts;
+  const {enclosure:e,screen:s,intake:i,chamber:c,airflow:a,lift:l,controller:k,output:o,uv:u,conveyor:b,workpiece:w}=parts;
   function movable(parent,name,delta) {const g=new T.Group();g.name=name;parent.add(g);moving.push({group:g,delta:new T.Vector3(...delta)});return g;}
   // Frame, base, adjustable feet and removable skins.
   box(e,[1.49,.14,1.19],[0,.20,0],M.navy);
@@ -83,23 +87,23 @@ export function buildStation() {
   // Whole front face is mounted on a true hinge.
   const door=new T.Group();door.position.set(-.70,0,.585);e.add(door);
   const face=new T.Group();face.position.set(.70,0,0);door.add(face);
-  box(face,[1.37,.80,.075],[0,2.76,0],M.white);
-  box(face,[1.37,.11,.075],[0,2.28,0],M.white);
+  box(face,[1.37,.66,.075],[0,2.83,0],M.white);
+  box(face,[1.37,.07,.075],[0,2.50,0],M.white);
   box(face,[1.37,.72,.075],[0,1.25,0],M.white);
-  box(face,[1.37,.27,.075],[0,.42,0],M.white);
-  box(face,[1.37,.13,.075],[0,.82,0],M.white);
-  for(const x of [-.59,.59])box(face,[.18,.75,.075],[x,1.86,0],M.navy);
-  for(const x of [-.60,.60])box(face,[.16,.25,.075],[x,.65,0],M.white);
+  box(face,[1.37,.20,.075],[0,.39,0],M.white);
+  box(face,[1.37,.10,.075],[0,.86,0],M.white);
+  for(const x of [-.59,.59])box(face,[.18,1.0,.075],[x,1.98,0],M.navy);
+  for(const x of [-.60,.60])box(face,[.16,.33,.075],[x,.645,0],M.white);
   for(const x of [-.728,.728])box(face,[.05,2.89,.09],[x,1.72,.026],M.teal,.018);
   box(face,[.88,.075,.24],[0,1.49,-.06],M.navy);
-  box(face,[.94,.035,.24],[0,.545,-.07],M.navy);
-  box(face,[.79,.012,.012],[0,.56,.03],M.led,.003);
+  box(face,[.94,.035,.24],[0,.50,-.07],M.navy);
+  box(face,[.79,.012,.012],[0,.515,.03],M.led,.003);
   for(const y of [.53,2.22]){cyl(e,.029,.20,[-.725,y,.58]);box(face,[.065,.12,.085],[-.67,y,-.02],M.steel,.008);}
   box(face,[.025,.31,.045],[.49,1.24,.066],M.steel,.011);
   screws(face,[-.53,.53],[.35,1.55,3.07],.046);
   label(face,'ReMask Station',.80,.13,[0,1.15,.042],'#264c5a');
-  label(face,'RETURN',.42,.08,[0,2.28,.046],'#32606f');
-  label(face,'READY',.32,.07,[0,.82,.046],'#32606f');
+  label(face,'RETURN',.42,.06,[0,2.465,.046],'#32606f');
+  label(face,'READY',.32,.06,[0,.86,.046],'#32606f');
   // Screen contents are geometry plus a locally generated label texture.
   const display=new T.Group();face.add(display);display.userData.part='screen';
   box(display,[1.04,.57,.035],[0,2.79,.057],M.dark);
@@ -111,27 +115,27 @@ export function buildStation() {
   cyl(display,.049,.025,[.58,1.75,.06],M.teal,'z');
   label(display,'ID',.13,.09,[.58,1.89,.052]);
   // Intake carriage on twin rails, inspection camera and separate filter bin.
-  box(i,[1.14,.06,.81],[0,1.93,.015],M.steel,.012);
-  box(i,[.94,.025,.62],[0,1.976,.05],M.dark,.014);
+  // The conveyor below replaces the fixed intake floor so the carriage can descend.
   for(const x of [-.44,.44]){box(i,[.035,.055,.59],[x,2.00,.06],M.teal,.005);box(i,[.035,.03,.79],[x,1.89,0],M.steel,.005);}
-  box(i,[.21,.13,.14],[0,2.21,-.30],M.black);
-  cyl(i,.047,.050,[0,2.19,-.215],M.steel,'z');cyl(i,.031,.056,[0,2.19,-.21],M.screen,'z');
-  box(i,[.65,.016,.022],[0,2.29,-.10],M.led,.003);
+  box(i,[.21,.13,.14],[0,2.43,-.30],M.black);
+  cyl(i,.047,.050,[0,2.41,-.215],M.steel,'z');cyl(i,.031,.056,[0,2.41,-.21],M.screen,'z');
+  box(i,[.65,.016,.022],[0,2.47,-.10],M.led,.003);
   box(i,[.20,.22,.29],[-.44,1.72,-.14],M.navy,.012);
   label(i,'FILTER OUT',.24,.056,[-.44,1.72,.011]);
   // Isolated process chamber: a hollow enclosure, not a solid block.
-  box(c,[1.19,.06,.92],[0,1.025,-.035],M.steel,.008);
-  box(c,[1.19,.045,.92],[0,1.77,-.035],M.steel,.008);
+  const bottomShutter=box(c,[1.19,.06,.92],[0,1.025,-.035],M.steel,.008);
+  const topShutter=box(c,[1.19,.045,.92],[0,1.77,-.035],M.steel,.008);
   box(c,[1.13,.72,.035],[0,1.40,-.477],M.steel,.008);
   for(const x of [-.55,.55])box(c,[.03,.69,.85],[x,1.405,-.04],M.steel,.006);
   // Framed open aperture, perimeter seal and inspection tray.
   for(const x of [-.51,.51])box(c,[.025,.60,.025],[x,1.4,.402],M.rubber,.008);
   for(const y of [1.11,1.70])box(c,[1.04,.025,.025],[0,y,.402],M.rubber,.008);
-  box(c,[.85,.035,.64],[0,1.18,.015],M.navy,.012);
-  for(let v=0;v<13;v++)box(c,[.016,.014,.53],[-.36+v*.060,1.205,.01],M.steel,.003);
-  for(const x of [-.32,.32])path(c,[[x,1.27,-.24],[x,1.32,-.1],[x,1.32,.1],[x,1.27,.24]],.012,M.steel);
-  const bareFacepiece=new T.Mesh(shellGeometry(),M.rubber);bareFacepiece.scale.setScalar(.37);bareFacepiece.position.set(0,1.40,.05);bareFacepiece.castShadow=true;c.add(bareFacepiece);
-  box(c,[.90,.035,.70],[0,1.075,-.01],M.dark,.010);
+  const chamberRack=new T.Group();c.add(chamberRack);
+  box(chamberRack,[.85,.035,.64],[0,1.18,.015],M.navy,.012);
+  for(let v=0;v<13;v++)box(chamberRack,[.016,.014,.53],[-.36+v*.060,1.205,.01],M.steel,.003);
+  for(const x of [-.32,.32])path(chamberRack,[[x,1.27,-.24],[x,1.32,-.1],[x,1.32,.1],[x,1.27,.24]],.012,M.steel);
+  const bareFacepiece=new T.Mesh(shellGeometry(),M.mask);bareFacepiece.scale.setScalar(.37);bareFacepiece.position.set(0,1.40,.05);bareFacepiece.castShadow=true;chamberRack.add(bareFacepiece);
+  const drainPan=box(c,[.90,.035,.70],[0,1.075,-.01],M.dark,.010);
   label(c,'FACEPIECE ONLY',.71,.10,[0,1.59,-.454],'#345461');
   // Air path and drain, clearly visible in service view.
   box(a,[.28,.32,.12],[.36,1.48,-.33],M.navy,.016);
@@ -160,27 +164,86 @@ export function buildStation() {
   box(k,[.03,.055,.045],[.60,2.34,.505],M.red,.005);
   // Physically divided outcome bins and outlet shelf.
   box(o,[1.17,.045,.85],[0,.36,-.01],M.steel,.006);
-  for(const x of [-.565,-.19,.19,.565])box(o,[.022,.45,.73],[x,.60,-.055],M.steel,.004);
+  for(const x of [-.565,-.35,.35,.565])box(o,[.022,.45,.73],[x,.60,-.055],M.steel,.004);
   box(o,[1.16,.44,.022],[0,.60,-.41],M.steel,.004);
-  for(const [x,material,word] of [[-.38,M.green,'PASS'],[0,M.amber,'CHECK'],[.38,M.red,'REJECT']]){
-    box(o,[.33,.025,.64],[x,.40,-.02],material,.007);label(o,word,.30,.067,[x,.46,.362],'#345966');
+  for(const [x,material,word,width] of [[0,M.green,'PASS',.66],[-.46,M.amber,'CHECK',.17],[.46,M.red,'REJECT',.17]]){
+    box(o,[width,.025,.64],[x,.40,-.02],material,.007);label(o,word,Math.min(width,.30),.055,[x,.46,.362],'#345966');
   }
   box(o,[1.15,.04,.29],[0,.84,-.24],M.navy,.01);
-  const gate=box(o,[.43,.035,.38],[.19,.88,-.04],M.teal,.008);gate.rotation.y=-.3;
-  cyl(o,.05,.095,[.20,.86,-.26],M.steel);
+  const gate=box(o,[.43,.035,.38],[.19,.56,-.04],M.teal,.008);gate.rotation.y=-.3;
+  cyl(o,.05,.095,[.20,.54,-.26],M.steel);
+  // UV emitters, end caps and interlocked sliding chamber hatches.
+  const uvMaterial=mat('#c7d0e6',.05,.35,{emissive:'#9092ff',emissiveIntensity:0});
+  for(const x of [-.40,.40]){
+    cyl(u,.022,.49,[x,1.43,-.25],uvMaterial);for(const y of [1.17,1.69]){cyl(u,.036,.035,[x,y,-.25],M.steel);box(u,[.12,.047,.035],[x,y,-.29],M.navy,.006);}
+  }
+  const uvGlow=new T.PointLight('#949aff',0,1.9,2);uvGlow.position.set(0,1.43,.02);u.add(uvGlow);
+  label(u,'UV · CONCEPT',.58,.075,[0,1.72,.41],'#637386');
+  const beltCarriage=new T.Group();b.add(beltCarriage);
+  box(beltCarriage,[.83,.06,.74],[0,1.955,.04],M.steel,.009);
+  const beltSurface=box(beltCarriage,[.73,.032,.70],[0,1.999,.045],M.rubber,.004);
+  const beltMarks=[];
+  for(let n=0;n<13;n++)beltMarks.push(box(beltCarriage,[.70,.006,.019],[0,2.018,-.26+n*.05],M.maskEdge,.002));
+  const rollers=[];for(const z of [-.28,.37])rollers.push(cyl(beltCarriage,.044,.80,[0,1.984,z],M.steel,'x',20));
+  const tongue=new T.Group();b.add(tongue);
+  box(tongue,[.80,.035,1.0],[0,1.982,.83],M.steel,.01);box(tongue,[.73,.025,.96],[0,2.011,.83],M.rubber,.004);
+  for(let n=0;n<12;n++)box(tongue,[.71,.006,.018],[0,2.027,.39+n*.08],M.maskEdge,.002);
+  const returnMotor=box(b,[.13,.12,.14],[.48,1.94,.30],M.navy,.015);cyl(b,.035,.12,[.42,1.94,.30],M.steel,'x');
+  // A fully assembled white mask enters; only the body remains during the UV illustration.
+  const sample=buildMask();sample.root.scale.setScalar(.30);sample.root.position.set(0,2.22,1.24);w.add(sample.root);
+  sample.root.traverse(object=>{object.userData.part='workpiece';});
+  const scanMaterial=new T.MeshBasicMaterial({color:'#43d9bb',transparent:true,opacity:.62,depthWrite:false,side:T.DoubleSide});
+  const scanLine=new T.Mesh(new T.PlaneGeometry(.72,.015),scanMaterial);w.add(scanLine);scanLine.visible=false;scanLine.position.set(0,2.1,.245);
+  const ghostMaterials=new Map();let ghosted=false,processActive=false;
+  function cutaway(on){
+    if(on===ghosted)return;ghosted=on;
+    if(on){
+      for(const group of [e,c])group.traverse(mesh=>{
+        if(!mesh.isMesh||mesh===bareFacepiece||mesh.parent===chamberRack)return;
+        ghostMaterials.set(mesh,{material:mesh.material,shadow:mesh.castShadow});mesh.material=mesh.material.clone();mesh.material.transparent=true;mesh.material.opacity=.10;mesh.material.depthWrite=false;mesh.castShadow=false;
+      });
+    }else{for(const[mesh,old]of ghostMaterials){mesh.material.dispose();mesh.material=old.material;mesh.castShadow=old.shadow;}ghostMaterials.clear();}
+  }
   // Anchors follow moving parts and are shared by touch and keyboard controls.
   anchors.enclosure=marker(face,[-.44,1.3,.09]);anchors.screen=marker(display,[.32,2.93,.12]);
   anchors.intake=marker(i,[-.23,2.04,.39]);anchors.chamber=marker(c,[-.28,1.50,.40]);
   anchors.airflow=marker(a,[.43,1.48,-.20]);anchors.lift=marker(l,[-.42,2.37,-.32]);
   anchors.controller=marker(k,[.19,2.92,-.37]);anchors.output=marker(o,[.30,.58,.38]);
+  anchors.uv=marker(u,[-.40,1.50,-.20]);anchors.conveyor=marker(b,[.30,2.06,.40]);anchors.workpiece=marker(sample.root,[0,.15,.70]);
   const closedAnchors=['screen','intake','enclosure'];
   return {root,parts,anchors,closedAnchors,apply(open,explode){
     door.rotation.y=-open*1.78;door.position.set(-.70-explode*.40,0,.585+explode*.79);
     for(const {group,delta} of moving)group.position.copy(delta).multiplyScalar(explode);
     // Remove the service side from the sight line when opened, then park it beside the frame.
     right.position.x+=open*.79;right.position.z-=open*.20;
-    parts.intake.position.z=explode*.28;parts.chamber.position.z=explode*.15;
+    parts.intake.position.z=explode*.28;parts.chamber.position.set(-explode*.22,0,explode*.65);
     parts.output.position.y=-explode*.12;parts.controller.position.y=explode*.22;
+    parts.uv.position.set(-explode*.22,0,explode*.93);parts.conveyor.position.set(explode*.76,explode*.13,explode*.34);
+    if(!processActive){tongue.scale.z=.38;tongue.position.z=-.12;w.visible=explode>0;sample.root.position.set(-explode*.20,2.22,explode*.77);sample.apply(0,explode*.85);}
+  },setProcess(frame,ghost=true){
+    processActive=Boolean(frame);cutaway(processActive&&ghost);w.visible=processActive;scanLine.visible=false;scanLine.position.set(0,2.1,.245);uvMaterial.emissiveIntensity=0;uvGlow.intensity=0;
+    chamberRack.visible=!processActive;topShutter.position.z=-.035;bottomShutter.position.z=-.035;drainPan.position.z=-.01;
+    beltCarriage.position.set(0,0,0);tongue.scale.z=.38;tongue.position.z=-.12;returnMotor.rotation.x=0;gate.rotation.y=-.3;gate.position.y=.56;
+    for(const roller of rollers)roller.rotation.x=0;
+    for(let n=0;n<beltMarks.length;n++)beltMarks[n].position.z=-.26+n*.05;
+    for(const part of Object.values(sample.parts)){part.visible=true;part.position.set(0,0,0);}sample.root.rotation.set(0,0,0);sample.apply(0,0);
+    if(!frame)return;
+    sample.root.position.set(...frame.mask);sample.root.rotation.set(frame.rx,frame.ry,0);
+    for(const id of ['cartridge','filter','cover','straps','tag']){
+      const p=sample.parts[id];const replace=['cartridge','filter','cover'].includes(id)?frame.replacement:0;
+      const separation=frame.separation*(1-replace);p.visible=separation<.995;
+      // Used components exit left; replacement filter components arrive from the other side.
+      p.position.set((replace>0?1:-1)*separation*1.5,-separation*.7,separation*.9);
+    }
+    topShutter.position.z-=frame.topHatch*.94;bottomShutter.position.z-=frame.bottomHatch*.94;drainPan.position.z-=frame.bottomHatch*.94;
+    beltCarriage.position.y=Math.max(-1.33,frame.mask[1]-2.22);
+    if(frame.time>=18.6)beltCarriage.position.y=frame.result==='pass'?-1.33-(.89-frame.mask[1])*.47:-1.33;
+    if(frame.incoming){tongue.scale.z=1;tongue.position.z=0;}
+    for(let n=0;n<beltMarks.length;n++)beltMarks[n].position.z=-.28+((n*.05+frame.belt*.34)%.65);
+    for(const roller of rollers)roller.rotation.x=frame.belt*Math.PI*10;
+    uvMaterial.emissiveIntensity=frame.uv?1.6:0;uvGlow.intensity=frame.uv?.85:0;
+    scanLine.visible=frame.scan;scanLine.position.set(frame.mask[0],frame.mask[1]-.14+frame.scanPhase*.30,frame.mask[2]+.245);
+    gate.rotation.y=frame.route==='reject'?.62:frame.route==='pass'?-.62:-.3;gate.position.y=frame.route ? .45 : .56;
   }};
 }
 
@@ -218,40 +281,40 @@ export function buildMask() {
   const root=new T.Group();root.name='mask';root.userData.model='mask';
   const parts={},anchors={};for(const[id,d]of Object.entries(PARTS))if(d.model==='mask')parts[id]=part(root,id);
   const {shell:s,seal:g,cartridge:c,filter:f,cover:v,straps:b,tag:t}=parts;
-  const cup=new T.Mesh(shellGeometry(),M.rubber);cup.castShadow=true;cup.receiveShadow=true;s.add(cup);
+  const cup=new T.Mesh(shellGeometry(),M.mask);cup.castShadow=true;cup.receiveShadow=true;s.add(cup);
   // Outer mould seam follows the face contour; separate rear silicone gasket.
-  path(s,Array.from({length:80},(_,i)=>shellPoint(.992,i/80*Math.PI*2)),.013,M.black,true);
-  path(g,Array.from({length:80},(_,i)=>{const p=shellPoint(.976,i/80*Math.PI*2);p[2]-=.063;return p;}),.064,M.silicone,true);
-  path(g,Array.from({length:80},(_,i)=>{const p=shellPoint(.91,i/80*Math.PI*2);p[2]-=.112;return p;}),.020,M.silicone,true);
+  path(s,Array.from({length:80},(_,i)=>shellPoint(.992,i/80*Math.PI*2)),.009,M.maskEdge,true);
+  path(g,Array.from({length:80},(_,i)=>{const p=shellPoint(.976,i/80*Math.PI*2);p[2]-=.063;return p;}),.057,M.maskSeal,true);
+  path(g,Array.from({length:80},(_,i)=>{const p=shellPoint(.91,i/80*Math.PI*2);p[2]-=.112;return p;}),.018,M.maskSeal,true);
   // Continuous ring seat, latches and replaceable pleated insert.
-  ellipse(s,.491,.365,.535,.025,M.navy,.023);
-  ellipse(c,.492,.341,.558,.036,M.teal,.02);
-  ellipse(c,.465,.320,.58,.013,M.silicone,.02);
-  for(const sign of [-1,1]){box(c,[.075,.12,.085],[sign*.492,.02,.555],M.teal,.012);cyl(c,.013,.018,[sign*.505,.02,.61],M.steel,'z',10);}
+  ellipse(s,.491,.365,.535,.025,M.maskEdge,.023);
+  ellipse(c,.492,.341,.558,.036,M.maskEdge,.02);
+  ellipse(c,.465,.320,.58,.013,M.maskSeal,.02);
+  for(const sign of [-1,1]){box(c,[.075,.12,.085],[sign*.492,.02,.555],M.maskAccent,.012);cyl(c,.013,.018,[sign*.505,.02,.61],M.steel,'z',10);}
   const disc=cyl(f,1,.026,[0,.02,.592],M.filter,'z',64);disc.scale.set(.443,1,.301);
   // Closely spaced folded media across a fitted ellipse.
   for(let j=-10;j<=10;j++){
     const x=j*.039,half=.29*Math.sqrt(Math.max(0,1-(x/.442)**2));
     const pleat=box(f,[.020,half*2,.025],[x,.02,.616],M.filter,.001);pleat.rotation.y=.45;
   }
-  const grille=new T.Mesh(perforatedCover(),M.rubber);grille.position.set(0,.02,.662);grille.castShadow=true;v.add(grille);
-  ellipse(v,.493,.331,.676,.014,M.black,.02);
-  for(const sign of [-1,1])box(v,[.07,.095,.04],[sign*.498,.02,.67],M.dark,.01);
-  label(v,'ReMask',.34,.07,[0,-.254,.710],'#95acae');
+  const grille=new T.Mesh(perforatedCover(),M.mask);grille.position.set(0,.02,.662);grille.castShadow=true;v.add(grille);
+  ellipse(v,.493,.331,.676,.010,M.maskEdge,.02);
+  for(const sign of [-1,1])box(v,[.07,.095,.04],[sign*.498,.02,.67],M.maskEdge,.01);
+  label(v,'ReMask',.28,.06,[0,-.254,.710],'#798e90');
   // Upper and lower head straps, moulded mounts and adjustable buckles.
   for(const y of [.34,-.30]) {
     const pts=[[-.85,y,.10],[-1.04,y+.01,-.25],[-.93,y+.07,-.80],[-.48,y+.12,-1.13],[0,y+.13,-1.22],[.48,y+.12,-1.13],[.93,y+.07,-.80],[1.04,y+.01,-.25],[.85,y,.10]];
-    const band=path(b,pts,.034,M.black);band.scale.y=1.04;
+    const band=path(b,pts,.029,M.maskStrap);band.scale.y=1.04;
     for(const sign of [-1,1]){
-      const mount=box(b,[.115,.16,.075],[sign*.846,y,.071],M.black,.024);mount.rotation.z=-sign*.18;
-      box(b,[.071,.071,.018],[sign*.85,y,.113],M.teal,.008);
+      const mount=box(b,[.115,.16,.075],[sign*.846,y,.071],M.mask,.024);mount.rotation.z=-sign*.18;
+      box(b,[.071,.071,.018],[sign*.85,y,.113],M.maskEdge,.008);
       cyl(b,.016,.015,[sign*.85,y-.053,.115],M.steel,'z',10);
-      const buckle=box(b,[.13,.10,.075],[sign*.89,y+.07,-.84],M.teal,.016);buckle.rotation.y=sign*.35;
-      box(b,[.071,.044,.081],[sign*.89,y+.07,-.84],M.black,.009);
+      const buckle=box(b,[.13,.10,.075],[sign*.89,y+.07,-.84],M.maskEdge,.016);buckle.rotation.y=sign*.35;
+      box(b,[.071,.044,.081],[sign*.89,y+.07,-.84],M.maskStrap,.009);
     }
   }
   // Digital ID module is small, sealed and explicitly distinct from the filter.
-  const tagBody=box(t,[.22,.15,.08],[.76,-.39,.10],M.teal,.025);tagBody.rotation.z=.32;
+  const tagBody=box(t,[.20,.13,.065],[.76,-.39,.10],M.maskAccent,.020);tagBody.rotation.z=.32;
   for(let j=0;j<3;j++){
     const arc=new T.EllipseCurve(0,0,.021+j*.014,.021+j*.014,-1.1,1.1,false,0);
     const pts=arc.getPoints(15).map(p=>new T.Vector3(p.x+.73,p.y-.39,.146));

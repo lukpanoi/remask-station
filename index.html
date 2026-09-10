@@ -11,7 +11,7 @@
     <title>ReMask Station — ระบบจัดการวงจรชีวิตหน้ากากใช้ซ้ำ</title>
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
-    <link rel="stylesheet" href="./remask-3d.css?v=1" />
+    <link rel="stylesheet" href="./remask-3d.css?v=2" />
   </head>
   <body>
     <a class="skip-link" href="#main">ข้ามไปยังเนื้อหา</a>
@@ -101,14 +101,24 @@
               <div class="rm-canvas-host" id="rm-canvas-host"></div>
               <div class="rm-stage-label"><span id="rm-view-label">SYSTEM OVERVIEW</span><span>แบบแนวคิด · ไม่ใช่มาตราส่วนจริง</span></div>
               <div id="rm-hotspots" class="rm-hotspots"></div>
+              <aside id="rm-part-popover" class="rm-part-popover" hidden aria-label="รายละเอียดชิ้นส่วน"><button id="rm-popover-close" type="button" aria-label="ปิดรายละเอียดชิ้นส่วน">×</button><h3 id="rm-popover-title"></h3><p id="rm-popover-copy"></p><button id="rm-focus-part" type="button">ซูมชิ้นส่วนนี้ ↗</button></aside>
+              <div id="rm-process-badge" class="rm-process-badge" hidden><span id="rm-process-badge-label">PROCESS DEMO</span><b id="rm-process-badge-step">รับหน้ากาก</b></div>
               <div class="rm-loading" id="rm-loading" role="status"><span class="rm-loader"></span>กำลังเตรียมโมเดล 3D…</div>
               <div class="rm-fallback" id="rm-fallback" hidden><img src="./assets/remask-system.png" alt="ภาพแนวคิดตัวเครื่องและหน้ากาก ReMask" width="1536" height="1024"><p>อุปกรณ์นี้เปิดโมเดล 3D ไม่ได้ ดูรายละเอียดได้จากรายการชิ้นส่วนด้านล่าง</p><button type="button" id="rm-retry">ลองโหลดอีกครั้ง</button></div>
               <div class="rm-camera-tools" role="group" aria-label="ควบคุมมุมมอง"><button class="rm-icon-button" type="button" id="rm-zoom-in" aria-label="ซูมเข้า">+</button><button class="rm-icon-button" type="button" id="rm-zoom-out" aria-label="ซูมออก">−</button><button class="rm-icon-button" type="button" id="rm-reset" aria-label="คืนมุมมองเริ่มต้น"><svg aria-hidden="true"><use href="#i-reset-3d"></use></svg></button><button class="rm-icon-button" type="button" id="rm-rotate" aria-label="หมุนโมเดลอัตโนมัติ" aria-pressed="false"><svg aria-hidden="true"><use href="#i-rotate-3d"></use></svg></button></div>
               <p class="rm-gesture">ลากเพื่อหมุน · จีบสองนิ้วเพื่อซูม · แตะชิ้นส่วนเพื่อดูรายละเอียด</p>
             </div>
             <div class="rm-controls">
-              <div class="rm-actions"><button class="rm-action rm-primary" id="rm-open" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-open-3d"></use></svg><span>เปิดดูภายใน</span></button><button class="rm-action" id="rm-explode" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-layers-3d"></use></svg><span>แยกชิ้นส่วน</span></button></div>
+              <div class="rm-actions"><button class="rm-action rm-primary" id="rm-open" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-open-3d"></use></svg><span>เปิดดูภายใน</span></button><button class="rm-action" id="rm-explode" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-layers-3d"></use></svg><span>Exploded View</span></button></div>
               <div class="rm-slider-row" id="rm-slider-row" hidden><label for="rm-explode-range">ระดับการแยก</label><input id="rm-explode-range" type="range" min="0" max="100" value="0" step="1"><output for="rm-explode-range" id="rm-explode-value">0%</output></div>
+              <div class="rm-process-panel" aria-label="จำลองกระบวนการ ReMask">
+                <div class="rm-process-buttons"><button id="rm-start-process" type="button" disabled>▶ Start Process</button><button id="rm-reset-process" class="rm-icon-button" type="button" aria-label="หยุดและเริ่มกระบวนการใหม่" disabled><svg aria-hidden="true"><use href="#i-reset-3d"></use></svg></button></div>
+                <div class="rm-process-options"><label for="rm-demo-result">ผลสาธิต <select id="rm-demo-result"><option value="pass">PASS · ผ่าน</option><option value="reject">REJECT · ไม่ผ่าน</option></select></label><label class="rm-cutaway-label"><input id="rm-cutaway" type="checkbox" checked> มองทะลุฝา</label></div>
+                <ol class="rm-process-steps" aria-label="ขั้นตอนการจำลอง"><li data-rm-process-step="0"><span>01</span>รับ</li><li data-rm-process-step="1"><span>02</span>ตรวจ</li><li data-rm-process-step="2"><span>03</span>UV</li><li data-rm-process-step="3"><span>04</span>ตรวจซ้ำ</li><li data-rm-process-step="4"><span>05</span>ผล</li></ol>
+                <progress id="rm-process-progress" value="0" max="23" aria-label="ความคืบหน้าของแอนิเมชัน"></progress>
+                <div class="rm-process-status" role="status" aria-live="polite" aria-atomic="true"><strong id="rm-process-title">พร้อมจำลองการทำงาน</strong><p id="rm-process-copy">กด Start Process เพื่อดูหน้ากากเคลื่อนเข้าเครื่องและผ่านแต่ละขั้นตอน ระหว่างเล่นยังหมุนและซูมดูได้</p></div>
+                <p class="rm-process-note">การเรืองแสงและเวลาที่เห็นใช้เล่าแนวคิดเท่านั้น ไม่ใช่ผลยืนยันการฆ่าเชื้อ เครื่องจริงต้องปิดฝาและผ่านการทดสอบกระบวนการ</p>
+              </div>
               <div class="rm-detail" id="rm-detail" aria-live="polite" aria-atomic="true"><span class="rm-detail-number" id="rm-detail-number">3D</span><div><h3 id="rm-detail-title">ReMask Station + Reusable Facepiece</h3><p id="rm-detail-copy">เลือกตัวเครื่องหรือหน้ากาก แล้วเปิดดูภายใน หรือแยกชิ้นส่วนเพื่อสำรวจโครงสร้าง</p></div></div>
               <details class="rm-parts-disclosure"><summary>เลือกดูชิ้นส่วนทั้งหมด <span id="rm-parts-count"></span></summary><div id="rm-parts" class="rm-parts"></div></details>
               <p class="rm-concept-note">โครงสร้างภายในเป็นข้อเสนอเพื่อพัฒนาต้นแบบ ยังไม่ใช่แบบผลิตหรือผลทดสอบประสิทธิภาพ</p>
@@ -472,6 +482,6 @@
       <symbol id="i-open-3d" viewBox="0 0 24 24"><path d="M10 3h10v18H10M10 3 3 6v12l7 3V3Z"/><path d="M7 11v2m7-3h3v4h-3z"/></symbol>
       <symbol id="i-layers-3d" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/></symbol>
     </svg>
-    <script type="module" src="./remask-viewer.js?v=1"></script>
+    <script type="module" src="./remask-viewer.js?v=2"></script>
   </body>
 </html>

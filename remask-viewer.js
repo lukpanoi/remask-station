@@ -1,3 +1,4 @@
+import { processFrame, PROCESS_STEPS, PROCESS_DURATION } from './remask-process.js?v=2';
 const explorer = document.getElementById('model-3d');
 const $ = id => document.getElementById(id);
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -6,6 +7,7 @@ let mode='overview', selected=null, openTarget=0, openValue=0, explodeTarget=0, 
 let visible=true, dirty=true, initialized=false, initializing=false, raf=0, transition=null;
 let expanded=false, placeholder=null, priorFocus=null, previousBodyOverflow='';
 let hotButtons=[], oldMaterials=new Map(), cameraSize={width:0,height:0}, lastTime=0;
+let processActive=false,processRunning=false,processTime=0,processResult='pass',processStep=-1,processDone=false;
 const viewDefaults={overview:{title:'ReMask Station + Reusable Facepiece',text:'เลือกตัวเครื่องหรือหน้ากาก แล้วเปิดดูภายใน หรือแยกชิ้นส่วนเพื่อสำรวจโครงสร้าง'},station:{title:'ReMask Station · ตัวเครื่อง',text:'เปิดฝาเพื่อดูห้องกระบวนการ รางเลื่อน และชุดควบคุม แตะหมายเลขหรือชิ้นส่วนที่ต้องการสำรวจ'},mask:{title:'Reusable Facepiece · หน้ากาก',text:'ดูรูปทรงได้รอบด้าน เปิดดูด้านใน หรือแยกชั้นเพื่อสำรวจขอบซีล ตลับกรอง และฝาครอบ'}};
 
 function showDetail(id) {
@@ -15,10 +17,12 @@ function showDetail(id) {
   $('rm-detail-number').textContent=data.n || (mode==='station'?'01':mode==='mask'?'02':'3D');
   $('rm-detail-title').textContent=data.title;
   $('rm-detail-copy').textContent=data.text;
+  $('rm-part-popover').hidden=!id;
+  if(id){$('rm-popover-title').textContent=data.title;$('rm-popover-copy').textContent=data.text;}
   for(const button of $('rm-parts').querySelectorAll('button'))button.setAttribute('aria-pressed',String(button.dataset.part===id));
-  if(scene) {
+  if(scene&&models) {
     for(const [mesh,material]of oldMaterials){const highlighted=mesh.material;mesh.material=material;highlighted.dispose();}oldMaterials.clear();
-    if(id)for(const model of Object.values(models))model.root.traverse(mesh=>{
+    if(id&&!processActive)for(const model of Object.values(models))model.root.traverse(mesh=>{
       if(!mesh.isMesh || getPart(mesh)!==id || !mesh.material.emissive)return;
       oldMaterials.set(mesh,mesh.material);mesh.material=mesh.material.clone();mesh.material.emissive.set('#148a87');mesh.material.emissiveIntensity=.20;
     });
@@ -40,7 +44,7 @@ function selectPart(id) {
   const data=PARTS[id];if(!data)return;
   if(mode!==data.model)setView(data.model);
   // Expose interior parts selected from the accessible component list.
-  if(!models?.[data.model].closedAnchors.includes(id) && openTarget===0 && explodeTarget<.15){openTarget=1;updateButtons();animateFit();}
+  if(!processActive&&!models?.[data.model].closedAnchors.includes(id) && openTarget===0 && explodeTarget<.15){openTarget=1;updateButtons();animateFit();}
   if(id==='seal'&&camera)fitCamera(true,new T.Vector3(-3,1.4,-6));
   showDetail(id);
 }
@@ -48,7 +52,7 @@ function updateButtons() {
   $('rm-open').setAttribute('aria-pressed',String(openTarget>0));
   $('rm-open').querySelector('span').textContent=openTarget>0?'ประกอบกลับ':mode==='mask'?'เปิดดูด้านใน':'เปิดดูภายใน';
   $('rm-explode').setAttribute('aria-pressed',String(explodeTarget>0));
-  $('rm-explode').querySelector('span').textContent=explodeTarget>0?'รวมชิ้นส่วน':'แยกชิ้นส่วน';
+  $('rm-explode').querySelector('span').textContent=explodeTarget>0?'รวมชิ้นส่วน':'Exploded View';
   $('rm-slider-row').hidden=explodeTarget===0;
   $('rm-explode-range').value=Math.round(explodeTarget*100);$('rm-explode-value').textContent=Math.round(explodeTarget*100)+'%';
   $('rm-view-label').textContent=mode==='overview'?'SYSTEM OVERVIEW':mode==='station'?(openTarget?'STATION · INSIDE':explodeTarget?'STATION · EXPLODED':'REMASK STATION'):(explodeTarget?'FACEPIECE · EXPLODED':openTarget?'FACEPIECE · INSIDE':'REUSABLE FACEPIECE');
@@ -64,6 +68,7 @@ function positionModels() {
 }
 function applyPose(open,explode) { if(models)for(const model of Object.values(models))model.apply(open,explode);if(renderer)renderer.shadowMap.needsUpdate=true; }
 function setView(value) {
+  if(processActive)stopProcess();
   mode=value;openTarget=openValue=0;explodeTarget=explodeValue=0;
   positionModels();renderPartList();updateButtons();showDetail(null);fitCamera(true);dirty=true;
 }
@@ -85,15 +90,15 @@ function fitCamera(animate=true,direction=null) {
   }
   distance=Math.max(distance,2.2);const position=target.clone().addScaledVector(dir,distance);
   applyPose(openValue,explodeValue);
-  controls.minDistance=Math.max(.85,distance*.35);controls.maxDistance=distance*2.3;
+  controls.minDistance=mode==='station'?.22:Math.max(.65,distance*.24);controls.maxDistance=distance*2.3;
   if(animate&&!reducedMotion.matches){transition={start:performance.now(),from:camera.position.clone(),to:position,fromTarget:controls.target.clone(),target,duration:650};}
   else {transition=null;camera.position.copy(position);controls.target.copy(target);camera.lookAt(target);controls.update();}
   dirty=true;
 }
 function buildHotspots() {
   if(!models)return;
-  const focused=mode==='overview'?[]:openTarget>0||explodeTarget>.1 ?
-    (mode==='station'?['intake','chamber','airflow','controller','output']:['shell','seal','cartridge','filter','cover','tag']):models[mode].closedAnchors;
+  const focused=mode==='overview'?[]:processActive?['conveyor','intake','uv','output','workpiece']:openTarget>0||explodeTarget>.1 ?
+    (mode==='station'?['conveyor','chamber','uv','controller','output']:['shell','seal','cartridge','filter','cover','tag']):models[mode].closedAnchors;
   if(selected&&!focused.includes(selected))focused.unshift(selected);
   hotButtons=[];
   if(mode==='overview'){
@@ -137,6 +142,12 @@ function zoom(factor) {
 function tick(time) {
   raf=0;if(!visible||document.hidden||!renderer)return;
   const dt=Math.min((time-(lastTime||time))/1000,.05);lastTime=time;
+  if(processActive&&processRunning){
+    processTime=Math.min(PROCESS_DURATION,processTime+dt);const frame=processFrame(processTime,processResult);
+    models.station.setProcess(frame,$('rm-cutaway').checked);renderer.shadowMap.needsUpdate=true;dirty=true;
+    updateProcessUI(frame);
+    if(frame.complete){processRunning=false;processDone=true;updateProcessButtons();}
+  }
   const alpha=reducedMotion.matches?1:1-Math.exp(-dt*9);
   if(Math.abs(openValue-openTarget)>.0003||Math.abs(explodeValue-explodeTarget)>.0003){
     openValue+=(openTarget-openValue)*alpha;explodeValue+=(explodeTarget-explodeValue)*alpha;
@@ -155,14 +166,14 @@ function resume(){if(!raf&&renderer&&visible&&!document.hidden){lastTime=0;dirty
 function failure() {
   $('rm-loading').hidden=true;$('rm-fallback').hidden=false;$('rm-stage').setAttribute('aria-busy','false');
   $('rm-hotspots').hidden=true;explorer.querySelector('.rm-camera-tools').hidden=true;
-  for(const id of ['rm-open','rm-explode']){$(id).disabled=true;}
+  for(const id of ['rm-open','rm-explode','rm-start-process','rm-reset-process']){$(id).disabled=true;}
 }
 async function initialize() {
   if(initialized||initializing)return;initializing=true;
   const timer=setTimeout(()=>failure(),20000);
   try{
     const [three,controlModule,modelModule,envModule]=await Promise.all([
-      import('./vendor/three.module.min.js'),import('./vendor/OrbitControls.js'),import('./remask-models.js'),import('./vendor/RoomEnvironment.js')
+      import('./vendor/three.module.min.js'),import('./vendor/OrbitControls.js'),import('./remask-models.js?v=2'),import('./vendor/RoomEnvironment.js')
     ]);
     T=three;PARTS=modelModule.PARTS;renderPartList();
     renderer=new T.WebGLRenderer({antialias:true,alpha:true,powerPreference:'low-power'});
@@ -194,7 +205,7 @@ async function initialize() {
       pointers.delete(event.pointerId);if(!down||maxMove>7||performance.now()-down.time>650||pointers.size){down=null;return;}down=null;
       const r=canvas.getBoundingClientRect();raycaster.setFromCamera(new T.Vector2((event.clientX-r.left)/r.width*2-1,-(event.clientY-r.top)/r.height*2+1),camera);
       const roots=Object.values(models).filter(m=>m.root.visible).map(m=>m.root);
-      const hits=raycaster.intersectObjects(roots,true);const id=hits.filter(hit=>hit.object.isMesh).map(hit=>getPart(hit.object)).find(Boolean);if(id)selectPart(id);
+      const hits=raycaster.intersectObjects(roots,true);const id=hits.filter(hit=>hit.object.isMesh&&hit.object.material.opacity>.2&&isShown(hit.object)).map(hit=>getPart(hit.object)).find(Boolean);if(id)selectPart(id);
     });
     canvas.addEventListener('keydown',event=>{
       if(['+','=','-','_','Home','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))event.preventDefault();else return;
@@ -208,7 +219,7 @@ async function initialize() {
     new ResizeObserver(resize).observe($('rm-stage'));
     initialized=true;positionModels();resize();showDetail(null);updateButtons();
     $('rm-loading').hidden=true;$('rm-fallback').hidden=true;$('rm-hotspots').hidden=false;
-    explorer.querySelector('.rm-camera-tools').hidden=false;for(const id of ['rm-open','rm-explode'])$(id).disabled=false;
+    explorer.querySelector('.rm-camera-tools').hidden=false;for(const id of ['rm-open','rm-explode','rm-start-process','rm-reset-process'])$(id).disabled=false;
     $('rm-stage').setAttribute('aria-busy','false');resume();
   }catch(error){console.warn('ReMask 3D could not start:',error);failure();}
   finally{clearTimeout(timer);initializing=false;}
@@ -216,14 +227,17 @@ async function initialize() {
 
 for(const button of explorer.querySelectorAll('[data-rm-view]'))button.addEventListener('click',()=>setView(button.dataset.rmView));
 $('rm-open').addEventListener('click',()=>{
+  if(processActive)stopProcess();
   if(mode==='overview')setView('station');
   openTarget=openTarget>0?0:1;explodeTarget=0;updateButtons();showDetail(openTarget?(mode==='station'?'chamber':'shell'):null);animateFit();
 });
 $('rm-explode').addEventListener('click',()=>{
-  if(mode==='overview')setView('mask');
+  if(processActive)stopProcess();
+  if(mode==='overview')setView('station');
   explodeTarget=explodeTarget>0?0:1;openTarget=0;updateButtons();showDetail(null);animateFit();
 });
 $('rm-explode-range').addEventListener('input',event=>{
+  if(processActive)stopProcess();
   explodeTarget=Number(event.target.value)/100;openTarget=0;
   // Keep the range available at zero so it can be dragged back up.
   updateButtons();$('rm-slider-row').hidden=false;animateFit();
@@ -232,6 +246,54 @@ $('rm-reset').addEventListener('click',()=>{if(controls)controls.autoRotate=fals
 $('rm-zoom-in').addEventListener('click',()=>zoom(.82));$('rm-zoom-out').addEventListener('click',()=>zoom(1.2));
 $('rm-rotate').addEventListener('click',()=>{if(!controls)return;controls.autoRotate=!controls.autoRotate;transition=null;$('rm-rotate').setAttribute('aria-pressed',String(controls.autoRotate));dirty=true;});
 $('rm-retry').addEventListener('click',()=>location.reload());
+function isShown(object){for(let p=object;p;p=p.parent)if(!p.visible)return false;return true;}
+function updateProcessButtons(){
+  $('rm-start-process').textContent=processRunning?'Ⅱ หยุดชั่วคราว':processDone?'↻ เล่นอีกครั้ง':processActive?'▶ เล่นต่อ':'▶ Start Process';
+  $('rm-demo-result').disabled=processActive&&!processDone;
+  $('rm-process-badge-label').textContent=processRunning?'PROCESS DEMO':processDone?'DEMO COMPLETE':processActive?'PAUSED · DEMO':'PROCESS DEMO';
+}
+function updateProcessUI(frame,force=false){
+  $('rm-process-progress').value=frame.time;
+  if(!force&&frame.step===processStep&&!frame.complete)return;
+  processStep=frame.step;const step=PROCESS_STEPS[frame.step];
+  $('rm-process-title').textContent=frame.complete?(frame.result==='pass'?'PASS · จ่ายกลับในสถานการณ์สาธิต':'REJECT · แยกไว้ ไม่จ่ายกลับ'):step.title;
+  $('rm-process-copy').textContent=step.text;
+  $('rm-process-badge-step').textContent=frame.route?(frame.result==='pass'?'PASS · ผลสาธิต':'REJECT · ผลสาธิต'):step.title;
+  $('rm-process-badge').dataset.result=frame.route||'';
+  for(const item of explorer.querySelectorAll('[data-rm-process-step]')){
+    const i=Number(item.dataset.rmProcessStep);item.classList.toggle('is-complete',i<frame.step||frame.complete);
+    if(i===frame.step)item.setAttribute('aria-current','step');else item.removeAttribute('aria-current');
+  }
+}
+function startProcess(){
+  if(!initialized)return;
+  if(processActive&&!processDone){processRunning=!processRunning;updateProcessButtons();resume();return;}
+  setView('station');showDetail(null);processActive=true;processRunning=true;processDone=false;processTime=0;processStep=-1;
+  processResult=$('rm-demo-result').value;controls.autoRotate=false;$('rm-rotate').setAttribute('aria-pressed','false');
+  openValue=openTarget=explodeValue=explodeTarget=0;applyPose(0,0);
+  const frame=processFrame(0,processResult);models.station.setProcess(frame,$('rm-cutaway').checked);
+  $('rm-process-badge').hidden=false;updateProcessUI(frame,true);updateProcessButtons();buildHotspots();fitCamera(true);dirty=true;resume();
+}
+function stopProcess(){
+  if(!models)return;
+  showDetail(null);processActive=processRunning=processDone=false;processTime=0;processStep=-1;
+  models.station.setProcess(null);applyPose(openValue,explodeValue);
+  $('rm-process-badge').hidden=true;$('rm-process-progress').value=0;
+  $('rm-process-title').textContent='พร้อมจำลองการทำงาน';$('rm-process-copy').textContent='กด Start Process เพื่อดูหน้ากากเคลื่อนเข้าเครื่องและผ่านแต่ละขั้นตอน ระหว่างเล่นยังหมุนและซูมดูได้';
+  for(const item of explorer.querySelectorAll('[data-rm-process-step]')){item.classList.remove('is-complete');item.removeAttribute('aria-current');}
+  updateProcessButtons();buildHotspots();dirty=true;
+}
+$('rm-start-process').addEventListener('click',startProcess);
+$('rm-reset-process').addEventListener('click',()=>{stopProcess();fitCamera(true);});
+$('rm-cutaway').addEventListener('change',()=>{if(!processActive)return;showDetail(null);models.station.setProcess(processFrame(processTime,processResult),$('rm-cutaway').checked);dirty=true;renderer.shadowMap.needsUpdate=true;});
+$('rm-popover-close').addEventListener('click',()=>showDetail(null));
+$('rm-focus-part').addEventListener('click',()=>{
+  if(!selected||!models)return;
+  const target=models[PARTS[selected].model].anchors[selected].getWorldPosition(new T.Vector3());
+  const dir=camera.position.clone().sub(controls.target).normalize();const position=target.clone().addScaledVector(dir,mode==='station'?1.15:1.7);
+  controls.minDistance=.12;transition={start:performance.now(),from:camera.position.clone(),to:position,fromTarget:controls.target.clone(),target,duration:reducedMotion.matches?1:600};
+  $('rm-part-popover').hidden=true;dirty=true;
+});
 function toggleExpanded() {
   expanded=!expanded;
   if(expanded){
