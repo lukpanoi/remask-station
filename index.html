@@ -11,6 +11,7 @@
     <title>ReMask Station — ระบบจัดการวงจรชีวิตหน้ากากใช้ซ้ำ</title>
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./remask-3d.css?v=1" />
   </head>
   <body>
     <a class="skip-link" href="#main">ข้ามไปยังเนื้อหา</a>
@@ -93,14 +94,26 @@
             <p class="hero-note"><svg><use href="#i-info"></use></svg> แนวคิดเพื่อการศึกษาและพัฒนา ยังไม่ใช่อุปกรณ์ทางการแพทย์ที่ผ่านการรับรอง</p>
           </div>
 
-          <div class="hero-visual reveal" aria-label="ภาพจำลองสถานี ReMask และส่วนประกอบหน้ากาก">
-            <div class="product-render">
-              <span class="render-label">ENGINEERING CONCEPT · NOT TO SCALE</span>
-              <img src="./assets/remask-system.png" alt="ภาพจำลองสถานี ReMask คู่กับหน้ากากใช้ซ้ำ ไส้กรองถอดเปลี่ยน และแท็ก RFID" width="1536" height="1024" />
-              <div class="render-caption"><span>01</span><div><b>ReMask Station</b><small>Receive · Check · Manage</small></div></div>
-              <div class="render-caption mask-caption"><span>02</span><div><b>Reusable Facepiece</b><small>Filter + Digital identity</small></div></div>
+          <section class="hero-visual reveal remask-explorer" id="model-3d" aria-label="สำรวจโมเดล 3 มิติ ReMask">
+            <div class="rm-header"><div><span class="rm-eyebrow">REMASK · 3D EXPLORER</span><h2>สำรวจทุกชิ้นส่วน</h2></div><button class="rm-icon-button" id="rm-expand" type="button" aria-label="ขยายตัวดูโมเดล" aria-expanded="false"><svg aria-hidden="true"><use href="#i-expand-3d"></use></svg></button></div>
+            <div class="rm-tabs" role="group" aria-label="เลือกโมเดล"><button type="button" data-rm-view="overview" aria-pressed="true">ภาพรวม</button><button type="button" data-rm-view="station" aria-pressed="false">01 · ตัวเครื่อง</button><button type="button" data-rm-view="mask" aria-pressed="false">02 · หน้ากาก</button></div>
+            <div class="rm-stage" id="rm-stage" aria-busy="true">
+              <div class="rm-canvas-host" id="rm-canvas-host"></div>
+              <div class="rm-stage-label"><span id="rm-view-label">SYSTEM OVERVIEW</span><span>แบบแนวคิด · ไม่ใช่มาตราส่วนจริง</span></div>
+              <div id="rm-hotspots" class="rm-hotspots"></div>
+              <div class="rm-loading" id="rm-loading" role="status"><span class="rm-loader"></span>กำลังเตรียมโมเดล 3D…</div>
+              <div class="rm-fallback" id="rm-fallback" hidden><img src="./assets/remask-system.png" alt="ภาพแนวคิดตัวเครื่องและหน้ากาก ReMask" width="1536" height="1024"><p>อุปกรณ์นี้เปิดโมเดล 3D ไม่ได้ ดูรายละเอียดได้จากรายการชิ้นส่วนด้านล่าง</p><button type="button" id="rm-retry">ลองโหลดอีกครั้ง</button></div>
+              <div class="rm-camera-tools" role="group" aria-label="ควบคุมมุมมอง"><button class="rm-icon-button" type="button" id="rm-zoom-in" aria-label="ซูมเข้า">+</button><button class="rm-icon-button" type="button" id="rm-zoom-out" aria-label="ซูมออก">−</button><button class="rm-icon-button" type="button" id="rm-reset" aria-label="คืนมุมมองเริ่มต้น"><svg aria-hidden="true"><use href="#i-reset-3d"></use></svg></button><button class="rm-icon-button" type="button" id="rm-rotate" aria-label="หมุนโมเดลอัตโนมัติ" aria-pressed="false"><svg aria-hidden="true"><use href="#i-rotate-3d"></use></svg></button></div>
+              <p class="rm-gesture">ลากเพื่อหมุน · จีบสองนิ้วเพื่อซูม · แตะชิ้นส่วนเพื่อดูรายละเอียด</p>
             </div>
-          </div>
+            <div class="rm-controls">
+              <div class="rm-actions"><button class="rm-action rm-primary" id="rm-open" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-open-3d"></use></svg><span>เปิดดูภายใน</span></button><button class="rm-action" id="rm-explode" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-layers-3d"></use></svg><span>แยกชิ้นส่วน</span></button></div>
+              <div class="rm-slider-row" id="rm-slider-row" hidden><label for="rm-explode-range">ระดับการแยก</label><input id="rm-explode-range" type="range" min="0" max="100" value="0" step="1"><output for="rm-explode-range" id="rm-explode-value">0%</output></div>
+              <div class="rm-detail" id="rm-detail" aria-live="polite" aria-atomic="true"><span class="rm-detail-number" id="rm-detail-number">3D</span><div><h3 id="rm-detail-title">ReMask Station + Reusable Facepiece</h3><p id="rm-detail-copy">เลือกตัวเครื่องหรือหน้ากาก แล้วเปิดดูภายใน หรือแยกชิ้นส่วนเพื่อสำรวจโครงสร้าง</p></div></div>
+              <details class="rm-parts-disclosure"><summary>เลือกดูชิ้นส่วนทั้งหมด <span id="rm-parts-count"></span></summary><div id="rm-parts" class="rm-parts"></div></details>
+              <p class="rm-concept-note">โครงสร้างภายในเป็นข้อเสนอเพื่อพัฒนาต้นแบบ ยังไม่ใช่แบบผลิตหรือผลทดสอบประสิทธิภาพ</p>
+            </div>
+          </section>
         </div>
       </section>
 
@@ -452,5 +465,13 @@
 
     <button class="back-top" type="button" aria-label="กลับไปด้านบน"><svg><use href="#i-arrow"></use></svg></button>
     <script src="./app.js" defer></script>
+    <svg class="icon-sprite" aria-hidden="true">
+      <symbol id="i-expand-3d" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></symbol>
+      <symbol id="i-reset-3d" viewBox="0 0 24 24"><path d="M3 10a9 9 0 1 1 2 8M3 4v6h6"/></symbol>
+      <symbol id="i-rotate-3d" viewBox="0 0 24 24"><path d="m8 4 4 2-4 2M12 6C3 6 1 15 7 18m9 2-4-2 4-2m-4 2c9 0 11-9 5-12"/></symbol>
+      <symbol id="i-open-3d" viewBox="0 0 24 24"><path d="M10 3h10v18H10M10 3 3 6v12l7 3V3Z"/><path d="M7 11v2m7-3h3v4h-3z"/></symbol>
+      <symbol id="i-layers-3d" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/></symbol>
+    </svg>
+    <script type="module" src="./remask-viewer.js?v=1"></script>
   </body>
 </html>
